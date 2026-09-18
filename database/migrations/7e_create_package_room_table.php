@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('package_room', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
-            $table->foreignUuid('package_id')->constrained('package');
-            $table->foreignUuid('room_id')->constrained('room');
+            $table->foreignUuid('package_id')->constrained('package')->onDelete('cascade');
+            $table->foreignUuid('room_id')->constrained('room')->onDelete('cascade');
             $table->timestamps();
         });
     }

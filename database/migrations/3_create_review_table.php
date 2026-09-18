@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('review', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
-            $table->foreignUuid('user_customer_id')->constrained('user_customer');
-            $table->foreignUuid('user_therapist_id')->constrained('user_therapist');
+            $table->foreignUuid('user_customer_id')->constrained('user_customer')->onDelete('cascade');
+            $table->foreignUuid('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
             $table->string('total_star');
             $table->string('description');
             $table->timestamps();

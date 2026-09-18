@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('user_therapist', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
-            $table->foreignUuid('user_id')->constrained('user');
-            $table->string('role');
+            $table->foreignUuid('user_id')->constrained('user')->onDelete('cascade');
+            $table->string('position');
             $table->string('code');
             $table->timestamps();
         });

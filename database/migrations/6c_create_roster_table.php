@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('roster', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
             $table->date('date');
-            $table->foreignUuid('user_therapist_id')->constrained('user_therapist');
-            $table->foreignUuid('roster_leave_id')->nullable()->constrained('roster_leave');
-            $table->foreignUuid('roster_shift_id')->nullable()->constrained('roster_shift');
+            $table->foreignUuid('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
+            $table->foreignUuid('roster_leave_id')->nullable()->constrained('roster_leave')->onDelete('cascade');
+            $table->foreignUuid('roster_shift_id')->nullable()->constrained('roster_shift')->onDelete('cascade');
             $table->timestamps();
         });
     }

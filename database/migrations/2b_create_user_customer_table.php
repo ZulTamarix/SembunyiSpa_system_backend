@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('user_customer', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
-            $table->foreignUuid('user_id')->constrained('user');
+            $table->foreignUuid('user_id')->constrained('user')->onDelete('cascade');
             $table->foreignUuid('membership_id')->nullable()->constrained('membership');
             $table->string('membership_code')->nullable();
-            $table->string('total_booking');
+            $table->integer('total_booking');
             $table->date('date_joined');
             $table->timestamps();
         });

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('membership_privilege', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
-            $table->foreignUuid('membership_id')->constrained('membership');
+            $table->foreignUuid('membership_id')->constrained('membership')->onDelete('cascade');
             $table->string('list');
             $table->timestamps();
         });

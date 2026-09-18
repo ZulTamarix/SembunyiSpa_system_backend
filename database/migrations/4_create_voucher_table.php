@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();   // 👈 uuid primary
             $table->string('description');
             $table->string('type');
-            $table->foreignUuid('user_customer_id')->constrained('user_customer');
+            $table->foreignUuid('user_customer_id')->constrained('user_customer')->onDelete('cascade');
             $table->date('date_expired');
             $table->string('status');
             $table->decimal('discount', 10, 2);

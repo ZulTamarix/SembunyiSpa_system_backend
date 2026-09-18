@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('roster_adjustment', function (Blueprint $table) {
             $table->uuid('id')->primary();   // 👈 uuid primary
-            $table->foreignUuid('roster_id')->constrained('roster');
+            $table->foreignUuid('roster_id')->constrained('roster')->onDelete('cascade');
             $table->string('type');
             $table->string('time_start');
             $table->string('time_end');

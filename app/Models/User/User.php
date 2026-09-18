@@ -9,7 +9,7 @@ class User extends Model
 {
     use HasUuids;
 
-    protected $connection = 'enter connection';
+    // protected $connection = 'enter connection';
     protected $table = 'user'; // 👈 database name
 
     protected $fillable = [
@@ -17,12 +17,13 @@ class User extends Model
         'name',
         'email',
         'phoneNo',
+        'password',
         'status'
     ];
 
 
-    public function user_group()
-    {
-        return $this->hasOne(User_group::class, 'id', 'user_group_id');
-    }
+    // public function user_group()
+    // {
+    //     return $this->hasOne(User_group::class, 'id', 'user_group_id');
+    // }
 }
