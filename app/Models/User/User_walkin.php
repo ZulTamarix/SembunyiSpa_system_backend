@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class User_walkin extends Model
 {
     use HasUuids;
-
-    protected $connection = 'enter connection';
     protected $table = 'user_walkin'; // 👈 database name
 
     protected $fillable = [

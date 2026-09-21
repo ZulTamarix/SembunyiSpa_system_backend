@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+
 use App\Models\User\User;
 use App\Models\User\User_therapist;
 use App\Models\User\User_customer;
@@ -11,9 +12,35 @@ use App\Models\User\User_customer;
 class UserController
 {
     // 1) GET — fetch all
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(User::all());
+        $role = $request->input('role');
+
+        // therapist
+        if ($role == 'therapist') {
+            return response()->json(
+                User::where('role', 'therapist')->with('therapist')->get()->map(function ($user) {
+                    return [
+                        'MAIN' => $user->therapist,
+                        'user' => $user->except('therapist'),
+                    ];
+                })
+            );
+        }
+        // 2) customer
+        elseif ($role == 'customer') {
+            return response()->json(
+                User::where('role', 'customer')->with('customer')->get()->map(function ($user) {
+                    return [
+                        'MAIN' => $user->customer,
+                        'user' => $user->except('customer'),
+                    ];
+                })
+            );
+        }
+        else {
+            return response()->json(User::all());
+        }
     }
 
     // 2) POST
@@ -32,11 +59,13 @@ class UserController
 
         // Check if data already exists, if not create it
         $user = User::firstOrCreate(
-            [ 'email' => $validated['email']],
+            [ 
+                'email' => $validated['email'],
+                'phoneNo' => $validated['phoneNo']
+            ],
             [
                 'role' => $validated['role'],
                 'name' => $validated['name'],
-                'phoneNo' => $validated['phoneNo'],
                 'password' => Hash::make($validated['password']),
                 'status' => 'active'
             ]

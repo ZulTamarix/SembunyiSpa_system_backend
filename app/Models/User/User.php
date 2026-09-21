@@ -21,9 +21,12 @@ class User extends Model
         'status'
     ];
 
-
-    // public function user_group()
-    // {
-    //     return $this->hasOne(User_group::class, 'id', 'user_group_id');
-    // }
+    public function therapist()
+    {
+        return $this->hasOne(User_therapist::class, 'user_id', 'id');
+    }
+    public function customer()
+    {
+        return $this->hasOne(User_customer::class, 'user_id', 'id');
+    }
 }

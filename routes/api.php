@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PackageController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -13,3 +14,4 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('room', RoomController::class);
 Route::apiResource('user', UserController::class);
+Route::apiResource('package', PackageController::class);

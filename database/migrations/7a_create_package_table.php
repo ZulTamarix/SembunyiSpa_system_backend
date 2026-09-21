@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('type');
             $table->string('description');
-            $table->string('duration');
+            $table->integer('duration');
             $table->decimal('price', 10, 2);
             $table->string('gender');
             $table->timestamps();

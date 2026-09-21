@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class User_therapist extends Model
 {
     use HasUuids;
-
-    // protected $connection = 'enter connection';
     protected $table = 'user_therapist'; // 👈 database name
 
     protected $fillable = [
@@ -17,4 +15,9 @@ class User_therapist extends Model
         'position',
         'code',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

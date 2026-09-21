@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Room extends Model
 {
     use HasUuids;
-
-    // protected $connection = 'user_db';
     protected $table = 'room'; // 👈 database name
 
     protected $fillable = [

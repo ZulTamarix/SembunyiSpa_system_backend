@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Package\Package;
 
-class Package_detail extends Model
+class Package_room extends Model
 {
     use HasUuids;
-    protected $table = 'package_detail'; // 👈 database name
+    protected $table = 'package_room'; // 👈 database name
 
     protected $fillable = [
         'package_id',
-        'detail'
+        'room_id'
     ];
     
     public function package()
