@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_walkin', function (Blueprint $table) {
-            $table->uuid('id')->primary();   // 👈 uuid primary
+            $table->id(); // auto-increment BIGINT primary key
             $table->string('name');
             $table->string('phoneNo');
             $table->string('email');

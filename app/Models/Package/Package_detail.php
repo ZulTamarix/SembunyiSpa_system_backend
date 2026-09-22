@@ -2,15 +2,12 @@
 
 namespace App\Models\Package;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Package\Package;
 
 class Package_detail extends Model
 {
-    use HasUuids;
     protected $table = 'package_detail'; // 👈 database name
-
     protected $fillable = [
         'package_id',
         'detail'

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('booking', function (Blueprint $table) {
-            $table->uuid('id')->primary();   // 👈 uuid primary
+            $table->id(); // auto-increment BIGINT primary key
             $table->string('code');
             $table->foreignUuid('package_id')->constrained('package')->onDelete('cascade');
             $table->foreignUuid('user_customer_id')->nullable()->constrained('user_customer')->onDelete('cascade');

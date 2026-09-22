@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('roster', function (Blueprint $table) {
-            $table->uuid('id')->primary();   // 👈 uuid primary
+            $table->id(); // auto-increment BIGINT primary key
             $table->date('date');
             $table->foreignUuid('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
             $table->foreignUuid('roster_leave_id')->nullable()->constrained('roster_leave')->onDelete('cascade');

@@ -2,7 +2,6 @@
 
 namespace App\Models\Package;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Package\Package_detail;
 use App\Models\Package\Package_therapist;
@@ -10,9 +9,7 @@ use App\Models\Package\Package_room;
 
 class Package extends Model
 {
-    use HasUuids;
     protected $table = 'package'; // 👈 database name
-
     protected $fillable = [
         'poster',
         'title',

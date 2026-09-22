@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_customer', function (Blueprint $table) {
-            $table->uuid('id')->primary();   // 👈 uuid primary
+            $table->id(); // auto-increment BIGINT primary key
             $table->foreignUuid('user_id')->constrained('user')->onDelete('cascade');
-            $table->foreignUuid('membership_id')->nullable()->constrained('membership');
-            $table->string('membership_code')->nullable();
             $table->integer('total_booking');
             $table->date('date_joined');
             $table->timestamps();

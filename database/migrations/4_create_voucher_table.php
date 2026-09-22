@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('voucher', function (Blueprint $table) {
-            $table->uuid('id')->primary();   // 👈 uuid primary
+            $table->id(); // auto-increment BIGINT primary key
             $table->string('description');
             $table->string('type');
             $table->foreignUuid('user_customer_id')->constrained('user_customer')->onDelete('cascade');

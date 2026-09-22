@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('membership_privilege', function (Blueprint $table) {
+        Schema::create('membership_customer', function (Blueprint $table) {
             $table->id(); // auto-increment BIGINT primary key
+            $table->foreignUuid('user_customer_id')->constrained('user_customer')->onDelete('cascade');
             $table->foreignUuid('membership_id')->constrained('membership')->onDelete('cascade');
-            $table->string('list');
+            $table->string('code');
+            $table->string('date_joined');
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('membership_privilege');
+        Schema::dropIfExists('membership_customer');
     }
 };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\User\User;
 use App\Models\User\User_therapist;
@@ -21,7 +22,7 @@ class UserController
             return response()->json(
                 User::where('role', 'therapist')->with('therapist')->get()->map(function ($user) {
                     return [
-                        'MAIN' => $user->therapist,
+                        'MAIN_DATA' => $user->therapist,
                         'user' => $user->except('therapist'),
                     ];
                 })
@@ -32,7 +33,7 @@ class UserController
             return response()->json(
                 User::where('role', 'customer')->with('customer')->get()->map(function ($user) {
                     return [
-                        'MAIN' => $user->customer,
+                        'MAIN_DATA' => $user->customer,
                         'user' => $user->except('customer'),
                     ];
                 })
@@ -56,37 +57,41 @@ class UserController
             'code'      => 'nullable|string',
             'date_joined'   => 'nullable|string',
         ]);
+      
 
-        // Check if data already exists, if not create it
-        $user = User::firstOrCreate(
-            [ 
-                'email' => $validated['email'],
-                'phoneNo' => $validated['phoneNo']
-            ],
-            [
-                'role' => $validated['role'],
-                'name' => $validated['name'],
-                'password' => Hash::make($validated['password']),
-                'status' => 'active'
-            ]
-        );
+        // if 1 fail, all fail
+        DB::transaction(function () use ($validated) {
 
-        // 1) If role == 'therapist', create 'therapist' table
-        if ($validated['role'] === 'therapist') {
-            User_therapist::create([
-                'user_id'  => $user->id,
-                'position' => $validated['position'],
-                'code'     => $validated['code'],
-            ]);
-        }
-        // 2) If role == 'customer', create 'customer' table
-        elseif ($validated['role'] === 'customer') {
-            User_customer::create([
-                'user_id'  => $user->id,
-                'total_booking'   => 0,
-                'date_joined'     => $validated['date_joined'],
-            ]);
-        }
+            // Check if data already exists, if not create it
+            $user = User::firstOrCreate(
+                [ 
+                    'email' => $validated['email'],
+                    'phoneNo' => $validated['phoneNo']
+                ],
+                [
+                    'role' => $validated['role'],
+                    'name' => $validated['name'],
+                    'password' => Hash::make($validated['password']),
+                    'status' => 'active'
+                ]
+            );
 
+            // 1) If role == 'therapist', create 'therapist' table
+            if ($validated['role'] === 'therapist') {
+                User_therapist::create([
+                    'user_id'  => $user->id,
+                    'position' => $validated['position'],
+                    'code'     => $validated['code'],
+                ]);
+            }
+            // 2) If role == 'customer', create 'customer' table
+            elseif ($validated['role'] === 'customer') {
+                User_customer::create([
+                    'user_id'  => $user->id,
+                    'total_booking'   => 0,
+                    'date_joined'     => $validated['date_joined'],
+                ]);
+            }
+        });
     }
 }

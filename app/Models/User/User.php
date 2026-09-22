@@ -2,16 +2,11 @@
 
 namespace App\Models\User;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    use HasUuids;
-
-    // protected $connection = 'enter connection';
     protected $table = 'user'; // 👈 database name
-
     protected $fillable = [
         'role',
         'name',

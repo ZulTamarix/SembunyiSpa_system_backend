@@ -2,14 +2,11 @@
 
 namespace App\Models\User;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class User_customer extends Model
 {
-    use HasUuids;
     protected $table = 'user_customer'; // 👈 database name
-
     protected $fillable = [
         'user_id',
         'membership_id',
