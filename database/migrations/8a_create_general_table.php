@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roster_leave', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->string('code');
-            $table->string('description');
+        Schema::create('general', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('address');
+            $table->string('contactNo');
+            $table->string('time_start');
+            $table->string('time_end');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roster_leave');
+        Schema::dropIfExists('general');
     }
 };

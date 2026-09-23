@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('membership_customer', function (Blueprint $table) {
+        Schema::create('voucher', function (Blueprint $table) {
             $table->id();
+            $table->string('description');
+            $table->string('type');
             $table->foreignId('user_customer_id')->constrained('user_customer')->onDelete('cascade');
-            $table->foreignId('membership_id')->constrained('membership')->onDelete('cascade');
-            $table->string('code');
-            $table->string('date_joined');
+            $table->date('date_expired');
+            $table->string('status');
+            $table->decimal('discount', 10, 2);
+            $table->integer('quantity');
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('membership_customer');
+        Schema::dropIfExists('voucher');
     }
 };

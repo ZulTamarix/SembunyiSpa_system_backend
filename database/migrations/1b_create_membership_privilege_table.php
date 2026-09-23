@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('membership_privilege', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->foreignUuid('membership_id')->constrained('membership')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('membership_id')->constrained('membership')->onDelete('cascade');
             $table->string('list');
             $table->timestamps();
         });

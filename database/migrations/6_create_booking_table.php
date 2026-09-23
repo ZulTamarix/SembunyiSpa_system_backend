@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('booking', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
+            $table->id();
             $table->string('code');
-            $table->foreignUuid('package_id')->constrained('package')->onDelete('cascade');
-            $table->foreignUuid('user_customer_id')->nullable()->constrained('user_customer')->onDelete('cascade');
-            $table->foreignUuid('user_walkin_id')->nullable()->constrained('user_walkin')->onDelete('cascade');
+            $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
+            $table->foreignId('user_customer_id')->nullable()->constrained('user_customer')->onDelete('cascade');
+            $table->foreignId('user_walkin_id')->nullable()->constrained('user_walkin')->onDelete('cascade');
             $table->date('date_start');
             $table->string('time_start');
             $table->string('time_end');
-            $table->foreignUuid('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
-            $table->foreignUuid('room_id')->constrained('room')->onDelete('cascade');
+            $table->foreignId('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('room')->onDelete('cascade');
             $table->string('status');
             $table->string('payment');
             $table->timestamps();

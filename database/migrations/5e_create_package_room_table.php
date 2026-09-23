@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roster_shift', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->string('code');
-            $table->string('time_start');
-            $table->string('time_end');
+        Schema::create('package_room', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('room')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roster_shift');
+        Schema::dropIfExists('package_room');
     }
 };

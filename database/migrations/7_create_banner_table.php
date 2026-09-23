@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('voucher', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
+        Schema::create('banner', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
             $table->string('description');
-            $table->string('type');
-            $table->foreignUuid('user_customer_id')->constrained('user_customer')->onDelete('cascade');
-            $table->date('date_expired');
             $table->string('status');
-            $table->decimal('discount', 10, 2);
-            $table->integer('quantity');
+            $table->date('date_expired');
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('voucher');
+        Schema::dropIfExists('banner');
     }
 };

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('banner', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->string('title');
-            $table->string('description');
-            $table->string('status');
-            $table->date('date_expired');
+        Schema::create('roster_adjustment', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('roster_id')->constrained('roster')->onDelete('cascade');
+            $table->string('type');
+            $table->string('time_start');
+            $table->string('time_end');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('banner');
+        Schema::dropIfExists('roster_adjustment');
     }
 };

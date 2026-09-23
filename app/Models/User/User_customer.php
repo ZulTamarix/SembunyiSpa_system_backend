@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Models\Membership\Membership_customer;
 use Illuminate\Database\Eloquent\Model;
 
 class User_customer extends Model
@@ -18,5 +19,9 @@ class User_customer extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    public function membership_customer()
+    {
+        return $this->hasOne(Membership_customer::class, 'user_customer_id', 'id');
     }
 }

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('package_detail', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->foreignUuid('package_id')->constrained('package')->onDelete('cascade');
-            $table->string('detail');
+        Schema::create('roster_leave', function (Blueprint $table) {
+            $table->id();
+            $table->string('code');
+            $table->string('description');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('package_detail');
+        Schema::dropIfExists('roster_leave');
     }
 };

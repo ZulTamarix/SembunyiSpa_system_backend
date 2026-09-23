@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('room', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->string('name');
+        Schema::create('package', function (Blueprint $table) {
+            $table->id();
+            $table->string('poster');
+            $table->string('title');
+            $table->string('type');
             $table->string('description');
+            $table->integer('duration');
+            $table->decimal('price', 10, 2);
+            $table->string('gender');
             $table->timestamps();
         });
     }
@@ -24,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('room');
+        Schema::dropIfExists('package');
     }
 };

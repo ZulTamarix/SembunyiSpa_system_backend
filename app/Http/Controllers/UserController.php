@@ -22,7 +22,7 @@ class UserController
             return response()->json(
                 User::where('role', 'therapist')->with('therapist')->get()->map(function ($user) {
                     return [
-                        'MAIN_DATA' => $user->therapist,
+                        'user_therapist' => $user->therapist,
                         'user' => $user->except('therapist'),
                     ];
                 })
@@ -33,7 +33,7 @@ class UserController
             return response()->json(
                 User::where('role', 'customer')->with('customer')->get()->map(function ($user) {
                     return [
-                        'MAIN_DATA' => $user->customer,
+                        'user_customer' => $user->customer,
                         'user' => $user->except('customer'),
                     ];
                 })

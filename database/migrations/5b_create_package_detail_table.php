@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('package_room', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->foreignUuid('package_id')->constrained('package')->onDelete('cascade');
-            $table->foreignUuid('room_id')->constrained('room')->onDelete('cascade');
+        Schema::create('package_detail', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
+            $table->string('detail');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('package_room');
+        Schema::dropIfExists('package_detail');
     }
 };

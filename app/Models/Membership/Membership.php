@@ -19,6 +19,6 @@ class Membership extends Model
     }
     public function customer()
     {
-        return $this->hasMany(Membership_customer::class, 'membership_id', 'id');
+        return $this->hasOne(Membership_customer::class, 'membership_id', 'id');
     }
 }

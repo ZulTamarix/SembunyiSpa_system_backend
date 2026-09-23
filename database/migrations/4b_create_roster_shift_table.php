@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notification', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->foreignUuid('user_id')->constrained('user')->onDelete('cascade');
-            $table->string('title');
-            $table->string('description');
+        Schema::create('roster_shift', function (Blueprint $table) {
+            $table->id();
+            $table->string('code');
+            $table->string('time_start');
+            $table->string('time_end');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notification');
+        Schema::dropIfExists('roster_shift');
     }
 };

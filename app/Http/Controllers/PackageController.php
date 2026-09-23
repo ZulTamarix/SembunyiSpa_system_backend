@@ -19,10 +19,10 @@ class PackageController
         return response()->json(
             Package::with('detail', 'therapist', 'room')->get()->map(function ($package) {
                 return [
-                    'MAIN_DATA' => $package->except('detail', 'therapist', 'room'),
-                    'detail' => $package-> detail,
-                    'therapist' => $package-> therapist,
-                    'room' => $package-> room,
+                    'package' => $package->except('detail', 'therapist', 'room'),
+                    'package_detail' => $package-> detail,
+                    'package_therapist' => $package-> therapist,
+                    'package_room' => $package-> room,
                 ];
             })
         );

@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('package_therapist', function (Blueprint $table) {
-            $table->id(); // auto-increment BIGINT primary key
-            $table->foreignUuid('package_id')->constrained('package')->onDelete('cascade');
-            $table->foreignUuid('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
+            $table->foreignId('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
             $table->timestamps();
         });
     }

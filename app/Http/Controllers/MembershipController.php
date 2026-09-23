@@ -21,8 +21,8 @@ class MembershipController
             return response()->json(
                 Membership::with('privilege')->get()->map(function ($membership) {
                     return [
-                        'MAIN_DATA' => $membership->except('privilege'),
-                        'privilege' => $membership->privilege
+                        'membership' => $membership->except('privilege'),
+                        'membership_privilege' => $membership->privilege
                     ];
                 })
             );
@@ -30,10 +30,12 @@ class MembershipController
         // 2) customer
         elseif ($type == 'customer') {
             return response()->json(
-                Membership::with('customer')->get()->map(function ($membership) {
+                Membership_customer::with('membership', 'user_customer', 'user_customer.user')->get()->map(function ($customer) {
                     return [
-                        'MAIN_DATA' => $membership->customer,
-                        'membership' => $membership->except('customer')
+                        'membership_customer' => $customer->except('membership', 'user_customer', 'user_customer.user'),
+                        'membership' => $customer->membership,
+                        // 'user_customer' => $customer->user_customer,
+                        'user' => $customer->user_customer->user
                     ];
                 })
             );
