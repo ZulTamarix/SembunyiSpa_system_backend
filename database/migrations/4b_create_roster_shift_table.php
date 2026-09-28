@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('roster_shift', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
-            $table->string('time_start');
-            $table->string('time_end');
+            $table->integer('icon');
+            $table->time('time_start');
+            $table->time('time_end');
             $table->timestamps();
         });
     }

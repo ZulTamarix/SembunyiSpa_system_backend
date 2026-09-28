@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('roster_leave', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
+            $table->string('icon');
             $table->string('description');
             $table->timestamps();
         });

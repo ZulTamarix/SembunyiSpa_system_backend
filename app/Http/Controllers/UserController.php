@@ -4,11 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-use App\Models\User\User;
-use App\Models\User\User_therapist;
-use App\Models\User\User_customer;
+use App\Models\User;
 
 class UserController
 {
@@ -16,28 +13,39 @@ class UserController
     public function index(Request $request)
     {
         $role = $request->input('role');
+        $extra = $request->input('extra');
 
-        // therapist
-        if ($role == 'therapist') {
-            return response()->json(
-                User::where('role', 'therapist')->with('therapist')->get()->map(function ($user) {
-                    return [
-                        'user_therapist' => $user->therapist,
-                        'user' => $user->except('therapist'),
-                    ];
-                })
-            );
-        }
-        // 2) customer
-        elseif ($role == 'customer') {
-            return response()->json(
-                User::where('role', 'customer')->with('customer')->get()->map(function ($user) {
-                    return [
-                        'user_customer' => $user->customer,
-                        'user' => $user->except('customer'),
-                    ];
-                })
-            );
+        // if role is specified
+        if ($role) {
+            if($extra == 'membership') {
+                
+                return response()->json(
+                    User::where('role', $role)->whereNotNull('membership_id')->with('membership', 'membership.privilege')->get()->map(function ($user) {
+                        return [
+                            'user' => $user->except('membership', 'membership.privilege'),
+                            'membership' => $user-> membership?->except('privilege'),
+                            'membership_privilege' => $user->membership?->privilege,
+                        ];
+                    })
+                );
+            }
+            else if($extra == 'no_membership') {
+                
+                return response()->json(
+                    User::where('role', $role)->whereNull('membership_id')->get()
+                );
+            }
+            else if($extra == 'include walk in') {
+                
+                return response()->json(
+                    User::whereIn('role', ['customer', 'walkin'])->get()
+                );
+            }
+            else {
+                return response()->json(
+                    User::where('role', $role)->get()
+                );
+            }
         }
         else {
             return response()->json(User::all());
@@ -53,45 +61,43 @@ class UserController
             'email'  => 'required|string',
             'phoneNo'  => 'required|string',
             'password'  => 'required|string',
-            'position'  => 'nullable|string',
+            'specialty'  => 'nullable|string',
             'code'      => 'nullable|string',
             'date_joined'   => 'nullable|string',
         ]);
-      
 
-        // if 1 fail, all fail
-        DB::transaction(function () use ($validated) {
+        User::Create(
+            [ 
+                'email' => $validated['email'],
+                'phoneNo' => $validated['phoneNo'],
+                'role' => $validated['role'],
+                'name' => $validated['name'],
+                'password' => Hash::make($validated['password']),
+                'status' => 'active',
+                'date_joined'   => $validated['date_joined'],
 
-            // Check if data already exists, if not create it
-            $user = User::firstOrCreate(
-                [ 
-                    'email' => $validated['email'],
-                    'phoneNo' => $validated['phoneNo']
-                ],
-                [
-                    'role' => $validated['role'],
-                    'name' => $validated['name'],
-                    'password' => Hash::make($validated['password']),
-                    'status' => 'active'
-                ]
-            );
+                ...($validated['role'] == 'therapist' ? [
+                    'code'  => $validated['code'],
+                    'specialty' => $validated['specialty']
+                ] : [])
+            ]
+        );
+    }
 
-            // 1) If role == 'therapist', create 'therapist' table
-            if ($validated['role'] === 'therapist') {
-                User_therapist::create([
-                    'user_id'  => $user->id,
-                    'position' => $validated['position'],
-                    'code'     => $validated['code'],
-                ]);
-            }
-            // 2) If role == 'customer', create 'customer' table
-            elseif ($validated['role'] === 'customer') {
-                User_customer::create([
-                    'user_id'  => $user->id,
-                    'total_booking'   => 0,
-                    'date_joined'     => $validated['date_joined'],
-                ]);
-            }
-        });
+    // 3) PUT
+    public function update(Request $request, $id)
+    {
+        // check if it exist
+        $user = User::findOrFail($id);
+        $switch = $request->input('switch');
+
+        if($switch == 'membership'){
+            $validated = $request->validate([
+                'membership_id' => 'required|integer',
+                'code' => 'required|string',
+            ]);
+
+            $user->update($validated);
+        }
     }
 }

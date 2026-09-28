@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('description');
             $table->string('type');
-            $table->foreignId('user_customer_id')->constrained('user_customer')->onDelete('cascade');
+            $table->foreignId('user_customer_id')->constrained('user')->onDelete('cascade');
             $table->date('date_expired');
             $table->string('status');
             $table->decimal('discount', 10, 2);

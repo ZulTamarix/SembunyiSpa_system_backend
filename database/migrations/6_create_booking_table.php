@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('code');
             $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
-            $table->foreignId('user_customer_id')->nullable()->constrained('user_customer')->onDelete('cascade');
-            $table->foreignId('user_walkin_id')->nullable()->constrained('user_walkin')->onDelete('cascade');
+            $table->foreignId('user_customer_id')->nullable()->constrained('user')->onDelete('cascade');
             $table->date('date_start');
             $table->string('time_start');
             $table->string('time_end');
-            $table->foreignId('user_therapist_id')->constrained('user_therapist')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('user')->onDelete('cascade');
             $table->foreignId('room_id')->constrained('room')->onDelete('cascade');
             $table->string('status');
             $table->string('payment');

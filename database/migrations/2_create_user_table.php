@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('phoneNo'); 
             $table->string('password');
             $table->string('status'); 
+            $table->string('date_joined')->nullable(); 
+            $table->foreignId('membership_id')->nullable()->constrained('membership')->onDelete('cascade');
+            $table->string('specialty')->nullable(); 
+            $table->string('code')->nullable(); 
             $table->timestamps();
         });
     }

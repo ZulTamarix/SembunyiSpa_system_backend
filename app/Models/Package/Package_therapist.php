@@ -10,7 +10,7 @@ class Package_therapist extends Model
     protected $table = 'package_therapist'; // 👈 database name
     protected $fillable = [
         'package_id',
-        'user_therapist_id'
+        'user_id'
     ];
     
     public function package()

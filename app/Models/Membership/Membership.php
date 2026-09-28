@@ -4,7 +4,6 @@ namespace App\Models\Membership;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Membership\Membership_privilege;
-use App\Models\Membership\Membership_customer;
 
 class Membership extends Model
 {
@@ -16,9 +15,5 @@ class Membership extends Model
     public function privilege()
     {
         return $this->hasMany(Membership_privilege::class, 'membership_id', 'id');
-    }
-    public function customer()
-    {
-        return $this->hasOne(Membership_customer::class, 'membership_id', 'id');
-    }
+    } 
 }

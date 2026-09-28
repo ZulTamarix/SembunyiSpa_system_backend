@@ -94,7 +94,7 @@ class PackageController
             foreach ($validated['therapist_list'] as $therapist) {
                 Package_therapist::create([
                     'package_id' => $package->id,
-                    'user_therapist_id' => $therapist,
+                    'user_id' => $therapist,
                 ]);
             }
             // g) Create data for 'package_room'
