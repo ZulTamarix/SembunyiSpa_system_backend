@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('voucher', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
             $table->string('description');
             $table->string('type');
-            $table->foreignId('user_customer_id')->constrained('user')->onDelete('cascade');
             $table->date('date_expired');
             $table->string('status');
-            $table->decimal('discount', 10, 2);
-            $table->integer('quantity');
+            $table->string('discount_type');
+            $table->integer('discount_value')->nullable();
+            $table->integer('quantity')->nullable();
             $table->timestamps();
         });
     }
