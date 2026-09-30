@@ -10,6 +10,7 @@ class Membership_privilege extends Model
     protected $table = 'membership_privilege'; // 👈 database name
     protected $fillable = [
         'membership_id',
+        'voucher_id',
         'list'
     ];
     

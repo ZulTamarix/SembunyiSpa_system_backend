@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('code');
             $table->string('description');
             $table->string('type');
-            $table->date('date_expired');
+            $table->date('date_expired')->nullable();
             $table->string('status');
             $table->string('discount_type');
             $table->integer('discount_value')->nullable();

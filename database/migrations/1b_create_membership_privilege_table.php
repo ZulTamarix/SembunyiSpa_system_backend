@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('membership_privilege', function (Blueprint $table) {
             $table->id();
             $table->foreignId('membership_id')->constrained('membership')->onDelete('cascade');
+            $table->foreignId('voucher_id')->constrained('voucherp')->onDelete('cascade');
             $table->string('list');
             $table->timestamps();
         });

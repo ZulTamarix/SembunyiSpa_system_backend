@@ -17,4 +17,12 @@ class Voucher extends Model
         'discount_value',
         'quantity',
     ];
+
+    // 👇 Sort 'date_expired' in asc order 'GLOBALLY'
+    protected static function booted()
+    {
+        static::addGlobalScope('ordered', function ($query) {
+            $query->orderBy('date_expired', 'asc');
+        });
+    }
 }

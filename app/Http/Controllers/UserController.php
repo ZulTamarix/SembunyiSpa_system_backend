@@ -13,12 +13,13 @@ class UserController
     public function index(Request $request)
     {
         $role = $request->input('role');
-        $extra = $request->input('extra');
+        $extra_1 = $request->input('extra_1');
+        $extra_2 = $request->input('extra_2');
 
         // if role is specified
         if ($role) {
-            if($extra == 'membership') {
-                
+            // a)
+            if($extra_1 == 'membership') {
                 return response()->json(
                     User::where('role', $role)->whereNotNull('membership_id')->with('membership', 'membership.privilege')->get()->map(function ($user) {
                         return [
@@ -29,18 +30,29 @@ class UserController
                     })
                 );
             }
-            else if($extra == 'no_membership') {
-                
+            // b)
+            else if($extra_1 == 'no_membership') {
                 return response()->json(
                     User::where('role', $role)->whereNull('membership_id')->get()
                 );
             }
-            else if($extra == 'include walk in') {
-                
-                return response()->json(
-                    User::whereIn('role', ['customer', 'walkin'])->get()
-                );
+            // c)
+            else if($extra_1 == 'include walk in') {
+                // c) i)
+                if($extra_2 == 'include voucher') {
+                    return response()->json(
+                        User::whereIn('role', ['customer', 'walkin'])->with('voucherCustomers')->get()
+                    );
+                } 
+                // c) ii)
+                else {
+                    return response()->json(
+                        User::whereIn('role', ['customer', 'walkin'])->get()
+                    );
+                }
+
             }
+            // d)
             else {
                 return response()->json(
                     User::where('role', $role)->get()
