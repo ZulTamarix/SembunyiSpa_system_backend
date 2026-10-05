@@ -6,104 +6,199 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Package\Package;
-use App\Models\Package\Package_detail;
-use App\Models\Package\Package_therapist;
-use App\Models\Package\Package_room;
-
+use App\Models\Package\Package_service;
+use App\Models\Package\Service;
+use App\Models\Package\Service_category;
+use App\Models\Package\Service_therapist;
+use App\Models\Package\Service_room;
 
 class PackageController
 {
     // 1) GET — fetch all
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Package::with('detail', 'therapist', 'room')->get()->map(function ($package) {
-                return [
-                    'package' => $package->except('detail', 'therapist', 'room'),
-                    'package_detail' => $package-> detail,
-                    'package_therapist' => $package-> therapist,
-                    'package_room' => $package-> room,
-                ];
-            })
-        );
+        $switch = $request->input('switch');
+
+        // a)
+        if($switch == 'package') {
+            return response()->json(
+                Package::with('detail', 'therapist', 'room')->get()->map(function ($package) {
+                    return [
+                        'package' => $package->except('detail', 'therapist', 'room'),
+                        'package_detail' => $package-> detail,
+                        'package_therapist' => $package-> therapist,
+                        'package_room' => $package-> room,
+                    ];
+                })
+            );
+        }
+        else if($switch == 'service') {
+            return response()->json(
+                Service::with('category')->get()->map(function ($service) {
+                    return [
+                        'service' => $service->except('category'),
+                        'service_category' => $service->category,
+                    ];
+                })
+            );
+        }
+
+        // c)
+        else if($switch == 'service_category') {
+            return response()->json(Service_category::all());
+        }
+
     }
 
     // 2) POST
     public function store(Request $request)
     {
-        // a) Convert JSON strings back into arrays
-        $request->merge([
-            'detail_list' => json_decode($request->detail_list, true),
-            'therapist_list' => json_decode($request->therapist_list, true),
-            'room_list' => json_decode($request->room_list, true),
-        ]);
-
-        // b) Validation
-        $validated = $request->validate([
-            'poster' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'title' => 'required|string',
-            'type' => 'required|string',
-            'description' => 'required|string',
-            'duration' => 'required|integer',
-            'price' => 'required|numeric',
-            'gender' => 'required|string',
-            
-            'detail_list' => 'nullable|array',
-            'detail_list.*' => 'required|string',
-            'therapist_list' => 'required|array',
-            'therapist_list.*' => 'required|integer',
-            'room_list' => 'required|array',
-            'room_list.*' => 'required|integer',
-        ]);
-
+        $switch = $request->input('switch');
         
-        // if 1 fail, all fail
-        DB::transaction(function () use ($validated) {
+        // a)
+        if($switch == 'package') {
 
+            // a) Convert JSON strings back into arrays
+            $request->merge([
+                'service_list' => json_decode($request->service_list, true),
+            ]);
 
-            // c) Store image in public/Package
-            $file = $validated['poster'];
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(
-                public_path('Package'),
-                $filename
-            );
-            // Path to store in database
-            $posterPath = 'Package/' . $filename;
+            // b) Validation
+            $validated = $request->validate([
+                'poster' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'title' => 'required|string',
+                'description' => 'required|string',
+                'duration' => 'required|integer',
+                'price' => 'required|numeric',
+                'gender' => 'required|string',
+                'detail' => 'required|string',
 
-             // d) Create data for 'package' 
-            $package = Package::create(
+                'service_list' => 'required|array',
+                'service_list.*' => 'required|integer',
+            ]);
+
+            // if 1 fail, all fail
+            DB::transaction(function () use ($validated) {
+
+                // c) Store image in public/Package
+                $file = $validated['poster'];
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(
+                    public_path('Package'),
+                    $filename
+                );
+                // Path to store in database
+                $posterPath = 'Package/' . $filename;
+
+                // d) Create data for 'package' 
+                $package = Package::create(
+                    [
+                        'poster' => $posterPath,
+                        'title' => $validated['title'],
+                        'description' => $validated['description'],
+                        'duration' => $validated['duration'],
+                        'price' => $validated['price'],
+                        'gender' => $validated['gender'],
+                        'detail' => $validated['detail'],
+                    ]
+                );
+                // e) Create data for 'package_detail'
+                foreach ($validated['service_list'] as $service) {
+                    Package_service::create([
+                        'package_id' => $package->id,
+                        'service_id' => $service,
+                    ]);
+                }
+            });
+        }
+
+        // b) 
+        else if ($switch == 'service') {
+            
+
+            // a) Convert JSON strings back into arrays
+            $request->merge([
+                'therapist_list' => json_decode($request->therapist_list, true),
+                'room_list' => json_decode($request->room_list, true),
+            ]);
+
+            // b) Validation
+            $validated = $request->validate([
+                'poster' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'title' => 'required|string',
+                'description' => 'required|string',
+                'duration' => 'required|integer',
+                'price' => 'required|numeric',
+                'gender' => 'required|string',
+                'detail' => 'required|string',
+
+                'service_category_id' => 'required|integer',
+                'is_standalone' => 'required|boolean',
+                
+                'therapist_list' => 'required|array',
+                'therapist_list.*' => 'required|integer',
+                'room_list' => 'required|array',
+                'room_list.*' => 'required|integer',
+            ]);
+
+            // if 1 fail, all fail
+            DB::transaction(function () use ($validated) {
+
+                // c) Store image in public/Package
+                $file = $validated['poster'];
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(
+                    public_path('Service'),
+                    $filename
+                );
+                // Path to store in database
+                $posterPath = 'Service/' . $filename;
+
+                // d) Create data for 'package' 
+                $service = Service::create(
+                    [
+                        'poster' => $posterPath,
+                        'title' => $validated['title'],
+                        'description' => $validated['description'],
+                        'duration' => $validated['duration'],
+                        'price' => $validated['price'],
+                        'gender' => $validated['gender'],
+                        'detail' => $validated['detail'],
+                        'service_category_id' => $validated['service_category_id'],
+                        'is_standalone' => $validated['is_standalone'],
+                    ]
+                );
+                // f) Create data for 'service_therapist'
+                foreach ($validated['therapist_list'] as $therapist) {
+                    Service_therapist::create([
+                        'service_id' => $service->id,
+                        'user_id' => $therapist,
+                    ]);
+                }
+                // g) Create data for 'service_room'
+                foreach ($validated['room_list'] as $room) {
+                    Service_room::create([
+                        'service_id' => $service->id,
+                        'room_id' => $room,
+                    ]);
+                }
+            });
+        }
+
+        // c)
+        else if ($switch == 'service_category') {
+
+            $validated = $request->validate([
+                'name'  => 'required|string',
+            ]);
+
+            // Create
+            Service_category::Create(
                 [
-                    'poster' => $posterPath,
-                    'title' => $validated['title'],
-                    'type' => $validated['type'],
-                    'description' => $validated['description'],
-                    'duration' => $validated['duration'],
-                    'price' => $validated['price'],
-                    'gender' => $validated['gender'],
+                    'name' => $validated['name'],
                 ]
             );
-            // e) Create data for 'package_detail'
-            foreach ($validated['detail_list'] as $detail) {
-                Package_detail::create([
-                    'package_id' => $package->id,
-                    'detail' => $detail,
-                ]);
-            }
-            // f) Create data for 'package_therapist'
-            foreach ($validated['therapist_list'] as $therapist) {
-                Package_therapist::create([
-                    'package_id' => $package->id,
-                    'user_id' => $therapist,
-                ]);
-            }
-            // g) Create data for 'package_room'
-            foreach ($validated['room_list'] as $room) {
-                Package_room::create([
-                    'package_id' => $package->id,
-                    'room_id' => $room,
-                ]);
-            }
-        });
+        }
+
     }
 }

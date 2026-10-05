@@ -7,11 +7,14 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Membership\Membership;
-use App\Models\Membership\Membership_privilege;
 use App\Models\Roster\Roster_leave;
 use App\Models\Roster\Roster_shift;
 use App\Models\Voucher\Voucher;
 use App\Models\Voucher\Voucher_customer;
+use App\Models\Package\Service;
+use App\Models\Package\Service_category;
+use App\Models\Package\Service_therapist;
+use App\Models\Package\Service_room;
 
 class DatabaseSeeder extends Seeder
 {
@@ -40,38 +43,7 @@ class DatabaseSeeder extends Seeder
             ['id'=> '13', 'role'=> 'admin', 'name'=> 'Admin Sembunyi', 'email'=> 'admin@sembunyispa.com', 'phoneNo'=> '0190123456', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> null, 'code'=> null, 'date_joined'=> '2026-06-12', 'membership_id'=> null, 'created_at'=> now(), 'updated_at'=> now()],
         ]);
 
-        // 2) room
-        Room::insert([
-            ['id'=> '1', 'name'=> 'Bayu', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '2', 'name'=> 'Embun', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '3', 'name'=> 'Ombak', 'description'=> 'Hair Spa', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '4', 'name'=> 'Bunga', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '5', 'name'=> 'Rimba', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '6', 'name'=> 'Sutra', 'description'=> 'Hair Spa', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '7', 'name'=> 'Seri', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
-            ['id'=> '8', 'name'=> 'Mentari', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
-        ]);
-
-        // // 3a) membership
-        // Membership::insert([
-        //     ['id'=> '1', 'tier'=> 'Gold', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '2', 'tier'=> 'Silver', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '3', 'tier'=> 'Bronze', 'created_at'=> now(), 'updated_at'=> now()],
-        // ]);
-        // // 3b) membership_privilege
-        // Membership_privilege::insert([
-        //     ['id'=> '1', 'membership_id'=> '1', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '2', 'membership_id'=> '1', 'list'=> 'Free Golf Room Access', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '3', 'membership_id'=> '1', 'list'=> 'Free Towel Rental', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '4', 'membership_id'=> '1', 'list'=> '10% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '5', 'membership_id'=> '2', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '6', 'membership_id'=> '2', 'list'=> '15% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '7', 'membership_id'=> '2', 'list'=> 'Free Refreshment', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '8', 'membership_id'=> '3', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
-        //     ['id'=> '9', 'membership_id'=> '3', 'list'=> '20% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
-        // ]);
-
-        // 4a) roster_shift
+        // 2) roster
         Roster_shift::insert([
             ['id' => 1,  'icon' => 1,  'time_start' => '09:00:00', 'time_end' => '17:00:00', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 6,  'icon' => 6,  'time_start' => '10:00:00', 'time_end' => '18:00:00', 'created_at' => now(), 'updated_at' => now()],
@@ -80,7 +52,6 @@ class DatabaseSeeder extends Seeder
             ['id' => 9,  'icon' => 9,  'time_start' => '13:00:00', 'time_end' => '21:00:00', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 10, 'icon' => 10, 'time_start' => '14:00:00', 'time_end' => '22:00:00', 'created_at' => now(), 'updated_at' => now()],
         ]);
-        // 4b) roster_leave
         Roster_leave::insert([
             ['id' => 1, 'icon' => 'OFF', 'description' => 'Off Day', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2, 'icon' => 'ROD', 'description' => 'Replacement Off Day', 'created_at' => now(), 'updated_at' => now()],
@@ -93,7 +64,25 @@ class DatabaseSeeder extends Seeder
             ['id' => 9, 'icon' => 'TR', 'description' => 'Training', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        // 5) voucher
+        // // 3) membership
+        // Membership::insert([
+        //     ['id'=> '1', 'tier'=> 'Gold', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '2', 'tier'=> 'Silver', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '3', 'tier'=> 'Bronze', 'created_at'=> now(), 'updated_at'=> now()],
+        // ]);
+        // Membership_privilege::insert([
+        //     ['id'=> '1', 'membership_id'=> '1', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '2', 'membership_id'=> '1', 'list'=> 'Free Golf Room Access', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '3', 'membership_id'=> '1', 'list'=> 'Free Towel Rental', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '4', 'membership_id'=> '1', 'list'=> '10% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '5', 'membership_id'=> '2', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '6', 'membership_id'=> '2', 'list'=> '15% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '7', 'membership_id'=> '2', 'list'=> 'Free Refreshment', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '8', 'membership_id'=> '3', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
+        //     ['id'=> '9', 'membership_id'=> '3', 'list'=> '20% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
+        // ]);
+
+        // 4) voucher
         Voucher::insert([
             ['id' => 1, 'code' => 'WELCOME10', 'description' => '10% Welcome Voucher', 'type' => 'percentage', 'date_expired' => '2027-01-07', 'status' => 'active', 'discount_type' => 'percentage', 'discount_value' => 10, 'quantity' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2, 'code' => 'SAVE20', 'description' => 'RM20 Discount Voucher', 'type' => 'promotion', 'date_expired' => '2027-02-15', 'status' => 'active', 'discount_type' => 'discount_amount', 'discount_value' => 20, 'quantity' => null, 'created_at' => now(), 'updated_at' => now()],
@@ -107,11 +96,61 @@ class DatabaseSeeder extends Seeder
             ['id' => 10, 'code' => 'SUMMER10', 'description' => '10% Summer Promotion', 'type' => 'promotion', 'date_expired' => '2027-07-30', 'status' => 'active', 'discount_type' => 'discount_percentage', 'discount_value' => 10, 'quantity' => 25, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 11, 'code' => 'GIFT30', 'description' => 'RM30 Gift Voucher', 'type' => 'gift', 'date_expired' => '2027-08-15', 'status' => 'inactive', 'discount_type' => 'discount_amount', 'discount_value' => 30, 'quantity' => 5, 'created_at' => now(), 'updated_at' => now()],
         ]);
-        // 6) voucher_customer
         Voucher_customer::insert([
             ['id' => 1, 'voucher_id' => 1, 'user_id' => 7, 'quantity' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2, 'voucher_id' => 2, 'user_id' => 7, 'quantity' => null, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 3, 'voucher_id' => 3, 'user_id' => 8, 'quantity' => 20, 'created_at' => now(), 'updated_at' => now()]
+        ]);
+
+        // 5) service
+        Service_category::insert([
+            ['id' => 1, 'name' => 'Body Massage', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2, 'name' => 'Body Treatment', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3, 'name' => 'Facial', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4, 'name' => 'Hair Spa', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 5, 'name' => 'Sound Therapy', 'created_at' => now(), 'updated_at' => now()],
+        ]);
+        Service::insert([
+            ['id' => 1, 'poster' => 'Service/spa_1.jpg', 'title' => 'Ming Dynasty Princess Ritual', 'description' => 'A 2.5-hour East-meets-West spa journey inspired by the Ming dynasty princess. Combines Chinese meridian techniques, aromatherapy massage, and a soothing herbal body treatment.', 'duration' => 150, 'price' => 388, 'gender' => 'Unisex', 'detail' => '<ul><li>Chinese meridian massage</li><li>Aromatherapy oil massage</li><li>Herbal body treatment</li><li>Relaxing tea ritual</li></ul>', 'service_category_id' => 1, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2, 'poster' => 'Service/spa_2.jpg', 'title' => 'Majapahit Queen Ritual', 'description' => 'A 2.5-hour Majapahit-inspired queen ritual. Begins with a Javanese Lulur scrub, continues with a deep Balinese massage, and concludes with a floral bath.', 'duration' => 150, 'price' => 368, 'gender' => 'Unisex', 'detail' => '<ul><li>Javanese Lulur body scrub</li><li>Balinese deep tissue massage</li><li>Traditional floral bath</li><li>Relaxing aromatherapy</li></ul>', 'service_category_id' => 2, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3, 'poster' => 'Service/spa_3.jpg', 'title' => 'Jasmine Princess Ritual', 'description' => 'A feminine 2.5-hour ritual for women drawing on ancient court beauty traditions. Features a gentle full-body massage and jasmine-infused floral bath.', 'duration' => 150, 'price' => 348, 'gender' => 'Female', 'detail' => '<ul><li>Gentle full-body massage</li><li>Jasmine body treatment</li><li>Jasmine-infused floral bath</li><li>Calming aromatherapy</li></ul>', 'service_category_id' => 2, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4, 'poster' => 'Service/spa_4.jpg', 'title' => 'Royal Herbal Compress', 'description' => 'A traditional herbal therapy combining warm herbal compresses with a relaxing full-body massage to release muscle tension and restore the body.', 'duration' => 90, 'price' => 228, 'gender' => 'Unisex', 'detail' => '<ul><li>Warm herbal compress</li><li>Full-body massage</li><li>Aromatherapy treatment</li><li>Muscle tension relief</li></ul>', 'service_category_id' => 1, 'is_standalone' => false, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 5, 'poster' => 'Service/spa_5.jpg', 'title' => 'Balinese Aromatherapy Massage', 'description' => 'A relaxing traditional Balinese massage using aromatic essential oils and rhythmic pressure techniques to ease tension and promote deep relaxation.', 'duration' => 90, 'price' => 198, 'gender' => 'Unisex', 'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'service_category_id' => 1, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+        Room::insert([
+            ['id'=> 1, 'name'=> 'Bayu', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 2, 'name'=> 'Embun', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 3, 'name'=> 'Ombak', 'description'=> 'Hair Spa', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 4, 'name'=> 'Bunga', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 5, 'name'=> 'Rimba', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 6, 'name'=> 'Sutra', 'description'=> 'Hair Spa', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 7, 'name'=> 'Seri', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
+            ['id'=> 8, 'name'=> 'Mentari', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
+        ]);
+        Service_therapist::insert([
+            ['id' => 1, 'service_id' => 1, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2, 'service_id' => 1, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3, 'service_id' => 1, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4, 'service_id' => 2, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 5, 'service_id' => 3, 'user_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 6, 'service_id' => 3, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 7, 'service_id' => 4, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 8, 'service_id' => 4, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9, 'service_id' => 5, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+        Service_room::insert([
+            ['id' => 1, 'service_id' => 1, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2, 'service_id' => 1, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3, 'service_id' => 2, 'room_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4, 'service_id' => 2, 'room_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 5, 'service_id' => 3, 'room_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 6, 'service_id' => 3, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 7, 'service_id' => 3, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 8, 'service_id' => 4, 'room_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 9, 'service_id' => 4, 'room_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 10, 'service_id' => 5, 'room_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 11, 'service_id' => 5, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 12, 'service_id' => 5, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
 

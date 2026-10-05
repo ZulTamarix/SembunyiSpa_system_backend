@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('package_therapist', function (Blueprint $table) {
+        Schema::create('service_category', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('user')->onDelete('cascade');
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('package_therapist');
+        Schema::dropIfExists('service_category');
     }
 };

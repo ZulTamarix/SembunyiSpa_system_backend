@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('poster');
             $table->string('title');
-            $table->string('type');
             $table->string('description');
             $table->integer('duration');
             $table->decimal('price', 10, 2);
             $table->string('gender');
+            $table->string('detail');
             $table->timestamps();
         });
     }

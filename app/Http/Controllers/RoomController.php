@@ -27,6 +27,5 @@ class RoomController
                 'description' => $validated['description'],
             ]
         );
-
     }
 }
