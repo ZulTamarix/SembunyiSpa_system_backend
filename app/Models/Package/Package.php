@@ -15,4 +15,10 @@ class Package extends Model
         'gender',
         'detail'
     ];
+
+    public function package_service()
+    {
+        return $this->hasMany(Package_service::class, 'package_id', 'id');
+    }
 }
+    

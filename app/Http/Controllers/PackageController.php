@@ -22,16 +22,15 @@ class PackageController
         // a)
         if($switch == 'package') {
             return response()->json(
-                Package::with('detail', 'therapist', 'room')->get()->map(function ($package) {
+                Package::with('package_service')->get()->map(function ($package) {
                     return [
-                        'package' => $package->except('detail', 'therapist', 'room'),
-                        'package_detail' => $package-> detail,
-                        'package_therapist' => $package-> therapist,
-                        'package_room' => $package-> room,
+                        'package' => $package->except('package_service'),
+                        'package_service' => $package->package_service,
                     ];
                 })
             );
         }
+        // b)
         else if($switch == 'service') {
             return response()->json(
                 Service::with('category')->get()->map(function ($service) {
@@ -42,7 +41,6 @@ class PackageController
                 })
             );
         }
-
         // c)
         else if($switch == 'service_category') {
             return response()->json(Service_category::all());

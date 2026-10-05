@@ -8,6 +8,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\BannerController;
 
 Route::apiResource('room', RoomController::class);
 Route::apiResource('user', UserController::class);
@@ -15,3 +16,4 @@ Route::apiResource('package', PackageController::class);
 Route::apiResource('membership', MembershipController::class);
 Route::apiResource('roster', RosterController::class);
 Route::apiResource('voucher', VoucherController::class);
+Route::apiResource('banner', BannerController::class);
