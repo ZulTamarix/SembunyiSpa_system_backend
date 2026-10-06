@@ -12,7 +12,7 @@ use App\Models\Roster\Roster_shift;
 use App\Models\Voucher\Voucher;
 use App\Models\Voucher\Voucher_customer;
 use App\Models\Package\Service;
-use App\Models\Package\Service_category;
+use App\Models\Package\Package_category;
 use App\Models\Package\Service_therapist;
 use App\Models\Package\Service_room;
 use App\Models\Package\Package;
@@ -106,7 +106,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 5) Package + Service
-        Service_category::insert([
+        Package_category::insert([
             ['id' => 1, 'name' => 'Body Massage', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2, 'name' => 'Body Treatment', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 3, 'name' => 'Facial', 'created_at' => now(), 'updated_at' => now()],
@@ -114,13 +114,13 @@ class DatabaseSeeder extends Seeder
             ['id' => 5, 'name' => 'Sound Therapy', 'created_at' => now(), 'updated_at' => now()],
         ]);
         Service::insert([
-            ['id' => 1, 'poster' => 'Service/service_1.jpg', 'title' => 'Ming Dynasty Princess Ritual', 'description' => 'A 2.5-hour East-meets-West spa journey inspired by the Ming dynasty princess. Combines Chinese meridian techniques, aromatherapy massage, and a soothing herbal body treatment.', 'duration' => 150, 'price' => 388, 'gender' => 'Unisex', 'detail' => '<ul><li>Chinese meridian massage</li><li>Aromatherapy oil massage</li><li>Herbal body treatment</li><li>Relaxing tea ritual</li></ul>', 'service_category_id' => 1, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2, 'poster' => 'Service/service_2.jpg', 'title' => 'Majapahit Queen Ritual', 'description' => 'A 2.5-hour Majapahit-inspired queen ritual. Begins with a Javanese Lulur scrub, continues with a deep Balinese massage, and concludes with a floral bath.', 'duration' => 150, 'price' => 368, 'gender' => 'Unisex', 'detail' => '<ul><li>Javanese Lulur body scrub</li><li>Balinese deep tissue massage</li><li>Traditional floral bath</li><li>Relaxing aromatherapy</li></ul>', 'service_category_id' => 2, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 3, 'poster' => 'Service/service_3.jpg', 'title' => 'Jasmine Princess Ritual', 'description' => 'A feminine 2.5-hour ritual for women drawing on ancient court beauty traditions. Features a gentle full-body massage and jasmine-infused floral bath.', 'duration' => 150, 'price' => 348, 'gender' => 'Female', 'detail' => '<ul><li>Gentle full-body massage</li><li>Jasmine body treatment</li><li>Jasmine-infused floral bath</li><li>Calming aromatherapy</li></ul>', 'service_category_id' => 2, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 4, 'poster' => 'Service/service_4.jpg', 'title' => 'Royal Herbal Compress', 'description' => 'A traditional herbal therapy combining warm herbal compresses with a relaxing full-body massage to release muscle tension and restore the body.', 'duration' => 90, 'price' => 228, 'gender' => 'Unisex', 'detail' => '<ul><li>Warm herbal compress</li><li>Full-body massage</li><li>Aromatherapy treatment</li><li>Muscle tension relief</li></ul>', 'service_category_id' => 1, 'is_standalone' => false, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 1, 'poster' => 'Service/service_1.jpg', 'title' => 'Ming Dynasty Princess Ritual', 'description' => 'A 2.5-hour East-meets-West spa journey inspired by the Ming dynasty princess. Combines Chinese meridian techniques, aromatherapy massage, and a soothing herbal body treatment.', 'duration' => 150, 'price' => 388, 'gender' => 'Unisex', 'detail' => '<ul><li>Chinese meridian massage</li><li>Aromatherapy oil massage</li><li>Herbal body treatment</li><li>Relaxing tea ritual</li></ul>', 'package_category_id' => 1, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2, 'poster' => 'Service/service_2.jpg', 'title' => 'Majapahit Queen Ritual', 'description' => 'A 2.5-hour Majapahit-inspired queen ritual. Begins with a Javanese Lulur scrub, continues with a deep Balinese massage, and concludes with a floral bath.', 'duration' => 150, 'price' => 368, 'gender' => 'Unisex', 'detail' => '<ul><li>Javanese Lulur body scrub</li><li>Balinese deep tissue massage</li><li>Traditional floral bath</li><li>Relaxing aromatherapy</li></ul>', 'package_category_id' => 2, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 3, 'poster' => 'Service/service_3.jpg', 'title' => 'Jasmine Princess Ritual', 'description' => 'A feminine 2.5-hour ritual for women drawing on ancient court beauty traditions. Features a gentle full-body massage and jasmine-infused floral bath.', 'duration' => 150, 'price' => 348, 'gender' => 'Female', 'detail' => '<ul><li>Gentle full-body massage</li><li>Jasmine body treatment</li><li>Jasmine-infused floral bath</li><li>Calming aromatherapy</li></ul>', 'package_category_id' => 2, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 4, 'poster' => 'Service/service_4.jpg', 'title' => 'Royal Herbal Compress', 'description' => 'A traditional herbal therapy combining warm herbal compresses with a relaxing full-body massage to release muscle tension and restore the body.', 'duration' => 90, 'price' => 228, 'gender' => 'Unisex', 'detail' => '<ul><li>Warm herbal compress</li><li>Full-body massage</li><li>Aromatherapy treatment</li><li>Muscle tension relief</li></ul>', 'package_category_id' => 1, 'is_standalone' => false, 'created_at' => now(), 'updated_at' => now()],
             ['id' => 5, 'poster' => 'Service/service_5.jpg', 'title' => 'Balinese Aromatherapy Massage', 'description' => 'A relaxing traditional Balinese massage using aromatic essential oils and rhythmic pressure techniques to ease tension and promote deep relaxation.', 'duration' => 90, 'price' => 198, 'gender' => 'Unisex', 
             
-            'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'service_category_id' => 1, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
+            'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'package_category_id' => 1, 'is_standalone' => true, 'created_at' => now(), 'updated_at' => now()],
         ]);
         Room::insert([
             ['id'=> 1, 'name'=> 'Bayu', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],

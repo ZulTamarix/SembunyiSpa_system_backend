@@ -16,13 +16,13 @@ class Service extends Model
         'gender',
         'detail',
         
-        'service_category_id',
+        'package_category_id',
         'is_standalone'
     ];
 
     public function category()
     {
-        return $this->hasOne(Service_category::class, 'id', 'service_category_id');
+        return $this->hasOne(Package_category::class, 'id', 'package_category_id');
     }
 
 }

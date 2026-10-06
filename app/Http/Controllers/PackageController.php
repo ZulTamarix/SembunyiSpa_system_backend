@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Package\Package;
 use App\Models\Package\Package_service;
 use App\Models\Package\Service;
-use App\Models\Package\Service_category;
+use App\Models\Package\Package_category;
 use App\Models\Package\Service_therapist;
 use App\Models\Package\Service_room;
 
@@ -36,14 +36,14 @@ class PackageController
                 Service::with('category')->get()->map(function ($service) {
                     return [
                         'service' => $service->except('category'),
-                        'service_category' => $service->category,
+                        'package_category' => $service->category,
                     ];
                 })
             );
         }
         // c)
-        else if($switch == 'service_category') {
-            return response()->json(Service_category::all());
+        else if($switch == 'category') {
+            return response()->json(Package_category::all());
         }
 
     }
@@ -130,7 +130,7 @@ class PackageController
                 'gender' => 'required|string',
                 'detail' => 'required|string',
 
-                'service_category_id' => 'required|integer',
+                'package_category_id' => 'required|integer',
                 'is_standalone' => 'required|boolean',
                 
                 'therapist_list' => 'required|array',
@@ -138,6 +138,8 @@ class PackageController
                 'room_list' => 'required|array',
                 'room_list.*' => 'required|integer',
             ]);
+            // convert to integer
+            // $validated['package_category_id'] = (int) $validated['package_category_id'];
 
             // if 1 fail, all fail
             DB::transaction(function () use ($validated) {
@@ -162,7 +164,7 @@ class PackageController
                         'price' => $validated['price'],
                         'gender' => $validated['gender'],
                         'detail' => $validated['detail'],
-                        'service_category_id' => $validated['service_category_id'],
+                        'package_category_id' => $validated['package_category_id'],
                         'is_standalone' => $validated['is_standalone'],
                     ]
                 );
@@ -184,14 +186,14 @@ class PackageController
         }
 
         // c)
-        else if ($switch == 'service_category') {
+        else if ($switch == 'category') {
 
             $validated = $request->validate([
                 'name'  => 'required|string',
             ]);
 
             // Create
-            Service_category::Create(
+            Package_category::Create(
                 [
                     'name' => $validated['name'],
                 ]

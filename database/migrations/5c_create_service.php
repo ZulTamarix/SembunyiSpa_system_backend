@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('gender');
             $table->string('detail');
 
-            $table->foreignId('service_category_id')->nullable()->constrained('service_category')->onDelete('cascade');
+            $table->foreignId('package_category_id')->nullable()->constrained('package_category')->onDelete('cascade');
             $table->boolean('is_standalone');
             $table->timestamps();
         });
