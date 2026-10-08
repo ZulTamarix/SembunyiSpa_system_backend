@@ -106,6 +106,7 @@ class UserController
         $user = User::findOrFail($id);
         $switch = $request->input('switch');
 
+        // 1)
         if($switch == 'membership'){
 
              // Validate request
@@ -141,6 +142,38 @@ class UserController
                     ]);
                 }
             });
+        }
+
+        // 2)
+        else if($switch == 'user'){
+
+             // Validate request
+            $validated = $request->validate([
+                'role'  => 'required|string',
+                'name'  => 'required|string',
+                'email'  => 'required|string',
+                'phoneNo'  => 'required|string',
+                'password'  => 'required|string',
+                'specialty'  => 'nullable|string',
+                'code'      => 'nullable|string',
+                'date_joined'   => 'nullable|string',
+            ]);
+
+            // 1. Update user
+            $user->update([
+                'email' => $validated['email'],
+                'phoneNo' => $validated['phoneNo'],
+                'role' => $validated['role'],
+                'name' => $validated['name'],
+                'password' => Hash::make($validated['password']),
+                'status' => 'active',
+                'date_joined'   => $validated['date_joined'],
+
+                ...($validated['role'] == 'therapist' ? [
+                    'code'  => $validated['code'],
+                    'specialty' => $validated['specialty']
+                ] : [])
+            ]);
         }
     }
 }

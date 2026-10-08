@@ -48,7 +48,7 @@ class PackageController
         else if($switch == 'service') {
             if($extra == 'for_booking') {
                 return response()->json(
-                    Package::where('type', 'service')->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')->get()->map(function ($package) {
+                    Package::where('type', 'service')->where('is_standalone','!=', 0)->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')->get()->map(function ($package) {
                         return [
                             'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
                             'package_category' => $package->package_category,
