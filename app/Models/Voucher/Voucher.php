@@ -8,6 +8,7 @@ class Voucher extends Model
 {
     protected $table = 'voucher'; // 👈 database name
     protected $fillable = [
+        'membership_id',
         'code',
         'description',
         'type',

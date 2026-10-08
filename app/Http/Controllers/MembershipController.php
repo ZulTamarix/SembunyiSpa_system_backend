@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-use App\Models\Membership\Membership;
-use App\Models\Membership\Membership_privilege;
+use App\Models\Membership;
 use App\Models\Voucher\Voucher;
 
 class MembershipController
@@ -15,10 +14,10 @@ class MembershipController
     public function index()
     {
         return response()->json(
-            Membership::with('privilege')->get()->map(function ($membership) {
+            Membership::with('voucher')->get()->map(function ($membership) {
                 return [
-                    'membership' => $membership->except('privilege'),
-                    'membership_privilege' => $membership->privilege
+                    'membership' => $membership->except('voucher'),
+                    'voucher' => $membership->voucher
                 ];
             })
         );
@@ -32,11 +31,7 @@ class MembershipController
             // a) membership
             'tier' => 'required|string',
             
-            // b) membership_privilege
-            'privilege_list' => 'required|array',
-            'privilege_list.*' => 'required|string',
-            
-            // c) voucher
+            // b) voucher
             'voucher_list' => 'required|array',
             'voucher_list.*.code' => 'required|string',
             'voucher_list.*.description' => 'required|string',
@@ -57,10 +52,11 @@ class MembershipController
                 ]
             );
             // 2. Create voucher + membership privilege
-            foreach ($validated['privilege_list'] as $index => $list) {
+            foreach ($validated['voucher_list'] as $index => $list) {
 
                 // Create voucher
-                $voucher = Voucher::create([
+                Voucher::create([
+                    'membership_id' => $membership->id,
                     'code' => $validated['voucher_list'][$index]['code'],
                     'description' => $validated['voucher_list'][$index]['description'],
                     'type' => $validated['voucher_list'][$index]['type'],
@@ -70,17 +66,8 @@ class MembershipController
                     'discount_value' => $validated['voucher_list'][$index]['discount_value'],
                     'quantity' => $validated['voucher_list'][$index]['quantity'],
                 ]);
-
-                // Assign voucher ID to membership_privilege
-                Membership_privilege::create([
-                    'membership_id' => $membership->id,
-                    'voucher_id' => $voucher->id,
-                    'list' => $list,
-                ]);
             }
         });
 
-
-        
     }
 }

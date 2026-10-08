@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models\Membership;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Membership\Membership_privilege;
+use App\Models\Voucher\Voucher;
 
 class Membership extends Model
 {
@@ -12,8 +12,8 @@ class Membership extends Model
         'tier'
     ];
     
-    public function privilege()
+    public function voucher()
     {
-        return $this->hasMany(Membership_privilege::class, 'membership_id', 'id');
+        return $this->hasMany(Voucher::class, 'membership_id', 'id');
     } 
 }

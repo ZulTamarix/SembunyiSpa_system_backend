@@ -7,10 +7,9 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Package\Package;
 use App\Models\Package\Package_service;
-use App\Models\Package\Service;
 use App\Models\Package\Package_category;
-use App\Models\Package\Service_therapist;
-use App\Models\Package\Service_room;
+use App\Models\Package\Package_therapist;
+use App\Models\Package\Package_room;
 
 class PackageController
 {
@@ -18,28 +17,58 @@ class PackageController
     public function index(Request $request)
     {
         $switch = $request->input('switch');
+        $extra = $request->input('extra');
 
         // a)
         if($switch == 'package') {
-            return response()->json(
-                Package::with('package_service')->get()->map(function ($package) {
-                    return [
-                        'package' => $package->except('package_service'),
-                        'package_service' => $package->package_service,
-                    ];
-                })
-            );
+            if($extra == 'for_booking') {
+                return response()->json(
+                    Package::where('type', 'package')->with('package_service', 'package_service.room', 'package_service.therapist', 'package_category')->get()->map(function ($package) {
+                        return [
+                            'package' => $package->except('package_service', 'package_service.room', 'package_service.therapist', 'package_category'),
+                            'package_service' => $package->package_service,
+                            'package_category' => $package->package_category,
+                        ];
+                    })
+                );
+            }
+            else {
+                return response()->json(
+                    Package::where('type', 'package')->with('package_service', 'package_category')->get()->map(function ($package) {
+                        return [
+                            'package' => $package->except('package_service', 'package_category'),
+                            'package_service' => $package->package_service,
+                            'package_category' => $package->package_category,
+                        ];
+                    })
+                );
+            }
         }
         // b)
         else if($switch == 'service') {
-            return response()->json(
-                Service::with('category')->get()->map(function ($service) {
-                    return [
-                        'service' => $service->except('category'),
-                        'package_category' => $service->category,
-                    ];
-                })
-            );
+            if($extra == 'for_booking') {
+                return response()->json(
+                    Package::where('type', 'service')->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')->get()->map(function ($package) {
+                        return [
+                            'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
+                            'package_category' => $package->package_category,
+                            'package_therapist' => $package->package_therapist,
+                            'package_room' => $package->package_room,
+                        ];
+                    })
+                );
+            }
+            else {
+
+                return response()->json(
+                    Package::where('type', 'service')->with('package_category')->get()->map(function ($package) {
+                        return [
+                            'service' => $package->except('package_category'),
+                            'package_category' => $package->package_category,
+                        ];
+                    })
+                );
+            }
         }
         // c)
         else if($switch == 'category') {
@@ -69,8 +98,11 @@ class PackageController
                 'duration' => 'required|integer',
                 'price' => 'required|numeric',
                 'gender' => 'required|string',
+                'type' => 'required|string',
                 'detail' => 'required|string',
 
+                'package_category_id' => 'required|integer',
+                
                 'service_list' => 'required|array',
                 'service_list.*' => 'required|integer',
             ]);
@@ -97,7 +129,9 @@ class PackageController
                         'duration' => $validated['duration'],
                         'price' => $validated['price'],
                         'gender' => $validated['gender'],
+                        'type' => $validated['type'],
                         'detail' => $validated['detail'],
+                        'package_category_id' => $validated['package_category_id'],
                     ]
                 );
                 // e) Create data for 'package_detail'
@@ -113,7 +147,6 @@ class PackageController
         // b) 
         else if ($switch == 'service') {
             
-
             // a) Convert JSON strings back into arrays
             $request->merge([
                 'therapist_list' => json_decode($request->therapist_list, true),
@@ -128,10 +161,11 @@ class PackageController
                 'duration' => 'required|integer',
                 'price' => 'required|numeric',
                 'gender' => 'required|string',
+                'type' => 'required|string',
                 'detail' => 'required|string',
 
                 'package_category_id' => 'required|integer',
-                'is_standalone' => 'required|boolean',
+                'is_standalone' => 'nullable|boolean',
                 
                 'therapist_list' => 'required|array',
                 'therapist_list.*' => 'required|integer',
@@ -155,7 +189,7 @@ class PackageController
                 $posterPath = 'Service/' . $filename;
 
                 // d) Create data for 'package' 
-                $service = Service::create(
+                $service = Package::create(
                     [
                         'poster' => $posterPath,
                         'title' => $validated['title'],
@@ -163,6 +197,7 @@ class PackageController
                         'duration' => $validated['duration'],
                         'price' => $validated['price'],
                         'gender' => $validated['gender'],
+                        'type' => $validated['type'],
                         'detail' => $validated['detail'],
                         'package_category_id' => $validated['package_category_id'],
                         'is_standalone' => $validated['is_standalone'],
@@ -170,15 +205,15 @@ class PackageController
                 );
                 // f) Create data for 'service_therapist'
                 foreach ($validated['therapist_list'] as $therapist) {
-                    Service_therapist::create([
-                        'service_id' => $service->id,
+                    Package_therapist::create([
+                        'package_id' => $service->id,
                         'user_id' => $therapist,
                     ]);
                 }
                 // g) Create data for 'service_room'
                 foreach ($validated['room_list'] as $room) {
-                    Service_room::create([
-                        'service_id' => $service->id,
+                    Package_room::create([
+                        'package_id' => $service->id,
                         'room_id' => $room,
                     ]);
                 }

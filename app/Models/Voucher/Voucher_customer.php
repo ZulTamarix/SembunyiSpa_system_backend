@@ -10,6 +10,7 @@ class Voucher_customer extends Model
     protected $fillable = [
         'voucher_id',
         'user_id',
-        'quantity'
+        'quantity',
+        'date_expired'
     ];
 }

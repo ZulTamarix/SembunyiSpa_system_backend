@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('voucher_customer', function (Blueprint $table) {
+        Schema::create('booking_selected', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('voucher_id')->constrained('voucher')->onDelete('cascade');
+            $table->foreignId('booking_id')->constrained('booking')->onDelete('cascade');
+            $table->foreignId('package_id')->constrained('package')->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('room')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('user')->onDelete('cascade');
-            $table->integer('quantity')->nullable();
-            $table->date('date_expired')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('voucher_customer');
+        Schema::dropIfExists('booking_selected');
     }
 };

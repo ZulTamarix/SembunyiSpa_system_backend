@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
+use App\Models\Voucher\Voucher;
+use App\Models\Voucher\Voucher_customer;
 
 class UserController
 {
@@ -21,11 +24,10 @@ class UserController
             // a)
             if($extra_1 == 'membership') {
                 return response()->json(
-                    User::where('role', $role)->whereNotNull('membership_id')->with('membership', 'membership.privilege')->get()->map(function ($user) {
+                    User::where('role', $role)->whereNotNull('membership_id')->with('membership', 'membership.voucher')->get()->map(function ($user) {
                         return [
-                            'user' => $user->except('membership', 'membership.privilege'),
-                            'membership' => $user-> membership?->except('privilege'),
-                            'membership_privilege' => $user->membership?->privilege,
+                            'user' => $user->except('membership', 'membership.voucher'),
+                            'membership' => $user-> membership,
                         ];
                     })
                 );
@@ -99,17 +101,46 @@ class UserController
     // 3) PUT
     public function update(Request $request, $id)
     {
+
         // check if it exist
         $user = User::findOrFail($id);
         $switch = $request->input('switch');
 
         if($switch == 'membership'){
+
+             // Validate request
             $validated = $request->validate([
                 'membership_id' => 'required|integer',
+                'membership_date_expired' => 'nullable|string',
                 'code' => 'required|string',
             ]);
 
-            $user->update($validated);
+            // if 1 fail, all fail
+            DB::transaction(function () use ($validated, $user) {
+
+                // 1. Update user
+                $user->update([
+                    'membership_id' => $validated['membership_id'],
+                    'membership_date_expired' => $validated['membership_date_expired'],
+                    'code' => $validated['code'],
+                ]);
+
+                // 2. Get all active vouchers for this membership
+                $vouchers = Voucher::where('membership_id', $validated['membership_id'])
+                    ->where('status', 'active')
+                    ->get();
+
+                // 3. Create voucher_customer for each voucher
+                foreach ($vouchers as $voucher) {
+
+                    Voucher_customer::create([
+                        'voucher_id' => $voucher->id,
+                        'user_id' => $user->id,
+                        'quantity' => $voucher->quantity,
+                        'date_expired' => $voucher->date_expired,
+                    ]);
+                }
+            });
         }
     }
 }

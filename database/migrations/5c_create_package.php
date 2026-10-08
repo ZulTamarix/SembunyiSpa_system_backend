@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service', function (Blueprint $table) {
+        Schema::create('package', function (Blueprint $table) {
             $table->id();
             $table->string('poster');
             $table->string('title');
@@ -20,9 +20,10 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('gender');
             $table->string('detail');
-
+            $table->string('type');
             $table->foreignId('package_category_id')->nullable()->constrained('package_category')->onDelete('cascade');
-            $table->boolean('is_standalone');
+
+            $table->boolean('is_standalone')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service');
+        Schema::dropIfExists('package');
     }
 };

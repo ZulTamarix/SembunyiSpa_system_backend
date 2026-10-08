@@ -94,6 +94,7 @@ class VoucherController
                 'voucher_id' => 'required|integer',
                 'user_id' => 'required|integer',
                 'quantity' => 'nullable|integer',
+                'date_expired' => 'nullable|string',
             ]);
 
             // Create data for 'voucher_customer' 
@@ -101,6 +102,7 @@ class VoucherController
                 'voucher_id' => $validated['voucher_id'],
                 'user_id' => $validated['user_id'],
                 'quantity' => $validated['quantity'],
+                'date_expired' => $validated['date_expired'],
             ]);
         }
 

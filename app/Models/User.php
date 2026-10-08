@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Membership\Membership;
+use App\Models\Membership;
 use App\Models\Voucher\Voucher_customer;
 
 class User extends Model
@@ -18,6 +18,7 @@ class User extends Model
         'status',
         'date_joined',
         'membership_id',
+        'membership_date_expired',
         'specialty',
         'code'
     ];
