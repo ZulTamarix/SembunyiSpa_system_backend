@@ -50,7 +50,7 @@ class VoucherController
             DB::transaction(function () use ($validated) {
                 
                 // a) Create data for 'voucher' 
-            $voucher = Voucher::create([
+                $voucher = Voucher::create([
                     'code' => $validated['code'],
                     'description' => $validated['description'],
                     'type' => $validated['type'],
@@ -106,5 +106,52 @@ class VoucherController
             ]);
         }
 
+    }
+
+    
+    // 3) PUT
+    public function update(Request $request, string $id)
+    {
+
+        // check if it exist
+        $voucher = Voucher::findOrFail($id);
+        $switch = $request->input('switch');
+
+        // 1)
+        if($switch == 'voucher'){
+
+             // Validate request
+            $validated = $request->validate([
+                'code' => 'required|string',
+                'description' => 'required|string',
+                'type' => 'required|string',
+                'date_expired' => 'required|date',
+                'status' => 'required|string',
+                'discount_type' => 'required|string',
+                'discount_value' => 'nullable|integer',
+                'quantity' => 'nullable|integer',
+
+                'selected_customer' => 'required|string',
+            ]);
+
+            // 1. Update user
+            $voucher->update([
+                'code' => $validated['code'],
+                'description' => $validated['description'],
+                'type' => $validated['type'],
+                'date_expired' => $validated['date_expired'],
+                'status' => $validated['status'],
+                'discount_type' => $validated['discount_type'],
+                'discount_value' => $validated['discount_value'],
+                'quantity' => $validated['quantity'],
+            ]);
+        }
+    }
+
+    // 4) DELETE
+    public function destroy(string $id)
+    {
+        $voucher = Voucher::findOrFail($id);
+        $voucher->delete();
     }
 }

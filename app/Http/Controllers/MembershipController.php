@@ -70,4 +70,11 @@ class MembershipController
         });
 
     }
+
+    // 4) DELETE
+    public function destroy(string $id)
+    {
+        $membership = Membership::findOrFail($id);
+        $membership->delete();
+    }
 }

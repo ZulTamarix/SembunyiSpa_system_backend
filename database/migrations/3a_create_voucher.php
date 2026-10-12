@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('voucher', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('membership_id')->constrained('membership')->onDelete('cascade');
+            $table->foreignId('membership_id')->nullable()->constrained('membership') ->cascadeOnDelete();
             $table->string('code');
             $table->string('description');
             $table->string('type');

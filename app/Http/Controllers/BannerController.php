@@ -49,4 +49,37 @@ class BannerController
         );
 
     }
+
+    // 3) PUT
+    public function update(Request $request, string $id)
+    {
+        // check if it exist
+        $banner = Banner::findOrFail($id);
+
+        // a) Validation
+        $validated = $request->validate([
+            'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'status' => 'required|string',
+            'date_expired' => 'required|string',
+        ]);
+
+        // b) Update other fields
+        $banner -> update([
+            // 'poster' => $posterPath,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'status' => $validated['status'],
+            'date_expired' => $validated['date_expired'],
+        ]);
+    }
+
+    // 4) DELETE
+    public function destroy(string $id)
+    {
+        $banner = Banner::findOrFail($id);
+        $banner->delete();
+    }
+
 }

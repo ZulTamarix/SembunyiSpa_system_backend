@@ -176,4 +176,11 @@ class UserController
             ]);
         }
     }
+
+    // 4) DELETE
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+    }
 }

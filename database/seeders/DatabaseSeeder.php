@@ -100,28 +100,17 @@ class DatabaseSeeder extends Seeder
                 ['id'=> '2', 'tier'=> 'Silver', 'created_at'=> now(), 'updated_at'=> now()],
                 ['id'=> '3', 'tier'=> 'Bronze', 'created_at'=> now(), 'updated_at'=> now()],
             ]);
-            // Membership_privilege::insert([
-            //     ['id'=> '1', 'membership_id'=> '1', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '2', 'membership_id'=> '1', 'list'=> 'Free Golf Room Access', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '3', 'membership_id'=> '1', 'list'=> 'Free Towel Rental', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '4', 'membership_id'=> '1', 'list'=> '10% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '5', 'membership_id'=> '2', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '6', 'membership_id'=> '2', 'list'=> '15% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '7', 'membership_id'=> '2', 'list'=> 'Free Refreshment', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '8', 'membership_id'=> '3', 'list'=> 'Free Sauna Session', 'created_at'=> now(), 'updated_at'=> now()],
-            //     ['id'=> '9', 'membership_id'=> '3', 'list'=> '20% Off Massage Services', 'created_at'=> now(), 'updated_at'=> now()],
-            // ]);
         #endregion
 
         #region 4) --> Voucher
             Voucher::insert([
-                ['id' => 1, 'membership_id' => 1, 'code' => 'WELCOME10', 'description' => '10% Welcome Voucher', 'type' => 'percentage', 'date_expired' => '2027-01-10', 'status' => 'active', 'discount_type' => 'percentage', 'discount_value' => 10, 'quantity' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 1, 'membership_id' => 1, 'code' => 'WELCOME10', 'description' => '10% Welcome Voucher', 'type' => 'percentage', 'date_expired' => '2027-01-10', 'status' => 'active', 'discount_type' => 'discount_percentage', 'discount_value' => 10, 'quantity' => 1, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 2, 'membership_id' => 1, 'code' => 'SAVE20', 'description' => 'RM20 Discount Voucher', 'type' => 'promotion', 'date_expired' => '2027-02-15', 'status' => 'active', 'discount_type' => 'discount_amount', 'discount_value' => 20, 'quantity' => null, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 3, 'membership_id' => 1, 'code' => 'SPA15', 'description' => '15% Spa Treatment Discount', 'type' => 'promotion', 'date_expired' => '2027-03-01', 'status' => 'active', 'discount_type' => 'discount_percentage', 'discount_value' => 15, 'quantity' => 20, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 4, 'membership_id' => null, 'code' => 'EXTRA30', 'description' => '30 Minutes Treatment Extension', 'type' => 'gift', 'date_expired' => '2027-03-20', 'status' => 'active', 'discount_type' => 'time_extension', 'discount_value' => 30, 'quantity' => 5, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 5, 'membership_id' => null, 'code' => 'FREEFACIAL', 'description' => 'Complimentary Facial Treatment', 'type' => 'gift', 'date_expired' => '2027-04-10', 'status' => 'active', 'discount_type' => 'complimentary', 'discount_value' => null, 'quantity' => 5, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 6, 'membership_id' => 2, 'code' => 'RELAX25', 'description' => '25% Relaxation Package Discount', 'type' => 'promotion', 'date_expired' => '2027-05-05', 'status' => 'active', 'discount_type' => 'discount_percentage', 'discount_value' => 25, 'quantity' =>null, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 7, 'membership_id' => 2, 'code' => 'RM50OFF', 'description' => 'RM50 Off Premium Package', 'type' => 'promotion', 'date_expired' => '2027-05-25', 'status' => 'inactive', 'discount_type' => 'discount_amount', 'discount_value' => 50, 'quantity' => 10, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 7, 'membership_id' => 2, 'code' => 'RM50OFF', 'description' => 'RM50 Off Premium Package', 'type' => 'promotion', 'date_expired' => '2027-05-25', 'status' => 'inactive', 'discount_type' => 'discount_amount', 'discount_value' => null, 'quantity' => 10, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 8, 'membership_id' => null, 'code' => 'EXTEND15', 'description' => '15 Minutes Complimentary Extension', 'type' => 'gift', 'date_expired' => '2027-06-15', 'status' => 'active', 'discount_type' => 'time_extension', 'discount_value' => 15, 'quantity' => 10, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 9, 'membership_id' => null, 'code' => 'FREESCRUB', 'description' => 'Complimentary Body Scrub', 'type' => 'gift', 'date_expired' => '2027-10-01', 'status' => 'inactive', 'discount_type' => 'complimentary', 'discount_value' => null, 'quantity' => 8, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 10, 'membership_id' => null, 'code' => 'SUMMER10', 'description' => '10% Summer Promotion', 'type' => 'promotion', 'date_expired' => '2027-10-30', 'status' => 'active', 'discount_type' => 'discount_percentage', 'discount_value' => 10, 'quantity' => 25, 'created_at' => now(), 'updated_at' => now()],

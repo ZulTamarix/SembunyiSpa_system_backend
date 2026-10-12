@@ -21,54 +21,46 @@ class PackageController
 
         // a)
         if($switch == 'package') {
-            if($extra == 'for_booking') {
-                return response()->json(
-                    Package::where('type', 'package')->with('package_service', 'package_service.room', 'package_service.therapist', 'package_category')->get()->map(function ($package) {
-                        return [
-                            'package' => $package->except('package_service', 'package_service.room', 'package_service.therapist', 'package_category'),
-                            'package_service' => $package->package_service,
-                            'package_category' => $package->package_category,
-                        ];
-                    })
-                );
-            }
-            else {
-                return response()->json(
-                    Package::where('type', 'package')->with('package_service', 'package_category')->get()->map(function ($package) {
-                        return [
-                            'package' => $package->except('package_service', 'package_category'),
-                            'package_service' => $package->package_service,
-                            'package_category' => $package->package_category,
-                        ];
-                    })
-                );
-            }
+            // if($extra == 'for_booking') {
+            return response()->json(
+                Package::where('type', 'package')->with('package_service', 'package_service.room', 'package_service.therapist', 'package_category')->get()->map(function ($package) {
+                    return [
+                        'package' => $package->except('package_service', 'package_service.room', 'package_service.therapist', 'package_category'),
+                        'package_category' => $package->package_category,
+                        'package_service' => $package->package_service,
+                    ];
+                })
+            );
+            // }
+            // else {
+            //     return response()->json(
+            //         Package::where('type', 'package')->with('package_service', 'package_category')->get()->map(function ($package) {
+            //             return [
+            //                 'package' => $package->except('package_service', 'package_category'),
+            //                 'package_category' => $package->package_category,
+            //                 'package_service' => $package->package_service,
+            //             ];
+            //         })
+            //     );
+            // }
         }
         // b)
         else if($switch == 'service') {
-            if($extra == 'for_booking') {
-                return response()->json(
-                    Package::where('type', 'service')->where('is_standalone','!=', 0)->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')->get()->map(function ($package) {
-                        return [
-                            'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
-                            'package_category' => $package->package_category,
-                            'package_therapist' => $package->package_therapist,
-                            'package_room' => $package->package_room,
-                        ];
-                    })
-                );
-            }
-            else {
+            $query = Package::where('type', 'service');
 
-                return response()->json(
-                    Package::where('type', 'service')->with('package_category')->get()->map(function ($package) {
-                        return [
-                            'service' => $package->except('package_category'),
-                            'package_category' => $package->package_category,
-                        ];
-                    })
-                );
-            }
+            if ($extra == 'for_booking') 
+                $query->where('is_standalone', '!=', 0);
+
+            return response()->json(
+                $query->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')->get()->map(function ($package) {
+                    return [
+                        'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
+                        'package_category' => $package->package_category,
+                        'package_therapist' => $package->package_therapist,
+                        'package_room' => $package->package_room,
+                    ];
+                })
+            );
         }
         // c)
         else if($switch == 'category') {
