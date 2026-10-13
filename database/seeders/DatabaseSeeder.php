@@ -18,6 +18,8 @@ use App\Models\Package\Package_room;
 use App\Models\Package\Package_service;
 use App\Models\Roster\Roster;
 use App\Models\Banner;
+use App\Models\Booking\Booking;
+use App\Models\Booking\Booking_selected;
 
 class DatabaseSeeder extends Seeder
 {
@@ -195,6 +197,29 @@ class DatabaseSeeder extends Seeder
                 ['id' => 1, 'poster' => 'Banner/banner_1.jpg', 'title' => 'Balinese Aromatherapy Massage', 'description' => 'Combination of service 1+2', 'date_expired' => '2027-10-12', 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 2, 'poster' => 'Banner/banner_2.jpeg', 'title' => 'Massage', 'description' => '... Entahlah', 'date_expired' => '2027-10-12', 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 3, 'poster' => 'Banner/banner_3.jpeg', 'title' => 'Advertisement', 'description' => 'Check out our latest offers!', 'date_expired' => '2027-10-12', 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
+            ]);
+        #endregion
+   
+        #region 7) --> Schedule
+            Booking::insert([
+                ['id' => 1, 'package_id' => null, 'user_id' => 6, 'date_start' => '2026-10-13', 'time_start' => '14:00', 'time_end' => '17:00', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 2, 'package_id' => null, 'user_id' => 7, 'date_start' => '2026-10-13', 'time_start' => '11:30', 'time_end' => '15:30', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 3, 'package_id' => null, 'user_id' => 8, 'date_start' => '2026-10-13', 'time_start' => '13:00', 'time_end' => '16:00', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 4, 'package_id' => null, 'user_id' => 9, 'date_start' => '2026-10-13', 'time_start' => '11:00', 'time_end' => '13:00', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 5, 'package_id' => null, 'user_id' => 8, 'date_start' => '2026-10-13', 'time_start' => '10:30', 'time_end' => '12:00', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 6, 'package_id' => null, 'user_id' => 7, 'date_start' => '2026-10-13', 'time_start' => '10:00', 'time_end' => '11:30', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 7, 'package_id' => null, 'user_id' => 9, 'date_start' => '2026-10-13', 'time_start' => '8:30', 'time_end' => '10:00', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+                ['id' => 8, 'package_id' => null, 'user_id' => 6, 'date_start' => '2026-10-13', 'time_start' => '13:00', 'time_end' => '16:00', 'payment' => 'pending', 'status' => 'booked', 'booking_type' => 'prepaid', 'remark' => null,  'created_at' => now(), 'updated_at' => now()],
+            ]);
+            Booking_selected::insert([
+                ['id' => 1, 'booking_id' => 1, 'package_id' => 1, 'room_id' => 1, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 2, 'booking_id' => 2, 'package_id' => 2, 'room_id' => 1, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 3, 'booking_id' => 3, 'package_id' => 4, 'room_id' => 2, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 4, 'booking_id' => 4, 'package_id' => 4, 'room_id' => 7, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 5, 'booking_id' => 5, 'package_id' => 5, 'room_id' => 4, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 6, 'booking_id' => 6, 'package_id' => 6, 'room_id' => 1, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 7, 'booking_id' => 7, 'package_id' => 2, 'room_id' => 5, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 8, 'booking_id' => 8, 'package_id' => 1, 'room_id' => 4, 'user_id' => 5, 'created_at' => now(), 'updated_at' => now()],
             ]);
         #endregion
     }

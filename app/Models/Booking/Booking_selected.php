@@ -3,6 +3,7 @@
 namespace App\Models\Booking;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Package\Package;
 
 class Booking_selected extends Model
 {
@@ -13,4 +14,13 @@ class Booking_selected extends Model
         'room_id',
         'user_id'
     ];
+
+    function booking()
+    {
+        return $this->belongsTo(Booking::class, 'booking_id', 'id');
+    }
+    function package()
+    {
+        return $this->belongsTo(Package::class, 'package_id', 'id');
+    }
 }

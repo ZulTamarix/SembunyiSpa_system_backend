@@ -3,6 +3,7 @@
 namespace App\Models\Booking;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Booking extends Model
 {
@@ -20,4 +21,9 @@ class Booking extends Model
         'booking_type',
         'remark'
     ];
+    
+    function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

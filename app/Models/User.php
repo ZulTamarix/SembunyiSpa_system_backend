@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Membership;
 use App\Models\Voucher\Voucher_customer;
+use App\Models\Booking\Booking_selected;
 
 class User extends Model
 {
@@ -31,6 +32,11 @@ class User extends Model
     {
         return $this->hasMany(Voucher_customer::class, 'user_id', 'id');
     }
+    public function booking_selected()
+    {
+        return $this->hasMany(Booking_selected::class, 'user_id', 'id');
+    }
+
 
     // 👇 Sort 'role' in asc order 'GLOBALLY'
     protected static function booted()

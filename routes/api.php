@@ -11,6 +11,7 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ScheduleController;
 
 Route::apiResource('room', RoomController::class);
 Route::apiResource('user', UserController::class);
@@ -20,6 +21,7 @@ Route::apiResource('roster', RosterController::class);
 Route::apiResource('voucher', VoucherController::class);
 Route::apiResource('banner', BannerController::class);
 Route::apiResource('booking', BookingController::class);
+Route::apiResource('schedule', ScheduleController::class);
 
 // bonus
 Route::get('/available/therapist', [AvailabilityController::class, 'getTherapist']); // get total booking
