@@ -26,4 +26,8 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+    public function booking_selected() // for therapist
+    {
+        return $this->hasOne(Booking_selected::class, 'booking_id', 'id');
+    }
 }

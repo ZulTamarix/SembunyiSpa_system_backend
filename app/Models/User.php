@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Membership;
 use App\Models\Voucher\Voucher_customer;
 use App\Models\Booking\Booking_selected;
+use App\Models\Booking\Booking;
 
 class User extends Model
 {
@@ -32,9 +33,13 @@ class User extends Model
     {
         return $this->hasMany(Voucher_customer::class, 'user_id', 'id');
     }
-    public function booking_selected()
+    public function booking_selected() // for therapist
     {
         return $this->hasMany(Booking_selected::class, 'user_id', 'id');
+    }
+    public function booking() // for customer
+    {
+        return $this->hasMany(Booking::class, 'user_id', 'id');
     }
 
 

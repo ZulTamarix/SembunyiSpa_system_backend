@@ -21,7 +21,6 @@ Route::apiResource('roster', RosterController::class);
 Route::apiResource('voucher', VoucherController::class);
 Route::apiResource('banner', BannerController::class);
 Route::apiResource('booking', BookingController::class);
-Route::apiResource('schedule', ScheduleController::class);
 
 // bonus
 Route::get('/available/therapist', [AvailabilityController::class, 'getTherapist']); // get total booking

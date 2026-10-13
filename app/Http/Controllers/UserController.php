@@ -43,7 +43,7 @@ class UserController
                 // c) i)
                 if($extra_2 == 'include voucher') {
                     return response()->json(
-                        User::whereIn('role', ['customer', 'walkin'])->with('voucherCustomers')->get()
+                        User::whereIn('role', ['customer', 'walkin'])->with('voucherCustomers', 'booking')->get()
                     );
                 } 
                 // c) ii)
@@ -74,13 +74,13 @@ class UserController
             'name'  => 'required|string',
             'email'  => 'required|string',
             'phoneNo'  => 'required|string',
-            'password'  => 'required|string',
+            'password'  => 'nullable|string',
             'specialty'  => 'nullable|string',
             'code'      => 'nullable|string',
             'date_joined'   => 'nullable|string',
         ]);
 
-        User::Create(
+        $user =User::Create(
             [ 
                 'email' => $validated['email'],
                 'phoneNo' => $validated['phoneNo'],
@@ -96,6 +96,11 @@ class UserController
                 ] : [])
             ]
         );
+
+        // optional to catch
+        return response()->json([
+            'id' => $user->id
+        ], 201);
     }
 
     // 3) PUT
