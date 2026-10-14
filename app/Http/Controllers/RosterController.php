@@ -50,6 +50,7 @@ class RosterController
             );
         }
     }
+
     // 2) POST
     public function store(Request $request)
     {
@@ -135,6 +136,69 @@ class RosterController
                     }
                 }
             });
+        }
+    }
+
+    // 3) PUT
+    public function update(Request $request, string $id)
+    {
+
+        // check if it exist
+        $switch = $request->input('switch');
+
+        // 1)
+        if($switch == 'shift'){
+
+            // find id
+            $roster_shift = Roster_shift::findOrFail($id);
+
+            // Validate request
+            $validated = $request->validate([
+                'icon' => 'required|integer',
+                'time_start' => 'required|string',
+                'time_end' => 'required|string',
+            ]);
+
+            // Update
+            $roster_shift->update([
+                'icon' => $validated['icon'],
+                'time_start' => $validated['time_start'],
+                'time_end' => $validated['time_end'],
+            ]);
+        }
+        // 2)
+        if($switch == 'leave'){
+
+            // find id
+            $roster_leave = Roster_leave::findOrFail($id);
+
+            // Validate request
+            $validated = $request->validate([
+                'icon' => 'required|string',
+                'description' => 'required|string',
+            ]);
+
+            // Update
+            $roster_leave->update([
+                'icon' => $validated['icon'],
+                'description' => $validated['description'],
+            ]);
+        }
+    }
+    
+
+    // 4) DELETE
+    public function destroy(Request $request,string $id)
+    {
+        $switch = $request->input('switch');
+
+        if($switch == 'shift'){
+            $roster_shift = Roster_shift::findOrFail($id);
+            $roster_shift->delete();
+        }
+        else if($switch == 'leave'){
+            $roster_leave = Roster_leave::findOrFail($id);
+            $roster_leave->delete();
         }
     }
 }
