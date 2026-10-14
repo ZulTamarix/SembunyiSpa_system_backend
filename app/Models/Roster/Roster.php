@@ -25,6 +25,10 @@ class Roster extends Model
     {
         return $this->belongsTo(Roster_shift::class, 'roster_shift_id', 'id');
     }
+    public function adjustment()
+    {
+        return $this->hasMany(Roster_adjustment::class, 'roster_id', 'id');
+    }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

@@ -108,7 +108,6 @@ class VoucherController
 
     }
 
-    
     // 3) PUT
     public function update(Request $request, string $id)
     {

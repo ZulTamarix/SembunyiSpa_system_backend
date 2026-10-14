@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('time_start');
             $table->string('time_end');
+            $table->string('reason');
             $table->timestamps();
         });
     }
