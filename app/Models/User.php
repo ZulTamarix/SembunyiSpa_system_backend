@@ -16,6 +16,7 @@ class User extends Model
         'name',
         'email',
         'phoneNo',
+        'username',
         'password',
         'status',
         'date_joined',

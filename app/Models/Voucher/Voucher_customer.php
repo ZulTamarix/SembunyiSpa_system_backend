@@ -13,4 +13,9 @@ class Voucher_customer extends Model
         'quantity',
         'date_expired'
     ];
+
+    function voucher()
+    {
+        return $this->belongsTo(Voucher::class, 'voucher_id', 'id');
+    }
 }

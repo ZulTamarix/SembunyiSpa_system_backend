@@ -3,47 +3,52 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+
 use App\Models\User;
+use App\Models\Notification\Notification;
+use App\Models\Notification\Notification_customer;
 
 class NotificationController
 {
     // 1) GET — fetch all
     public function index()
     {
-        return response()->json(
-            Notification::with('user')->get()->map(function ($notification) {
-                return [
-                    'notification' => $notification->except('user'),
-                    'user' => $notification->user
-                ];
-            })
-        );
+        return response()->json(Notification::all());
+
     }
 
     // 2) POST
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id'  => 'required|exists:user,id',
-            'type'  => 'required|string',
+            'role'  => 'required|string',
             'title'  => 'required|string',
             'description'  => 'required|string',
         ]);
-        $user = User::findOrFail($validated['user_id']);    
 
         // if 1 fail, all fail
-        DB::transaction(function () use ($validated, $user) {
-            Notification::Create(
-                [
-                    'user_id' => $validated['user_id'],
-                    'type' => $validated['type'],
-                    'title' => $validated['title'],
-                    'description' => $validated['description'],
-                ]
-            );
+        DB::transaction(function () use ($validated) {
+
+            // 1. Create notification
+            $notification = Notification::create([
+                'role'        => $validated['role'],
+                'title'       => $validated['title'],
+                'description' => $validated['description'],
+            ]);
+
+            // 2. Get all users based on role
+            $user_ids = User::where('role', $validated['role'])
+                ->pluck('id');
+
+            // 3. Create notification_customer for every user
+            foreach ($user_ids as $user_id) {
+                Notification_customer::create([
+                    'notification_id' => $notification->id,
+                    'user_id'         => $user_id,
+                ]);
+            }
 
             // Mail::raw($validated['description'], function ($message) use ($validated, $user) {
             //     $message->to($user->email)
@@ -59,16 +64,14 @@ class NotificationController
         $notification = Notification::findOrFail($id);
         
         $validated = $request->validate([
-            'user_id'  => 'required|exists:user,id',
-            'type'  => 'required|string',
+            'role'  => 'required|string',
             'title'  => 'required|string',
             'description'  => 'required|string',
         ]);
 
         // Check if data already exists, if not create it
         $notification->update([
-            'user_id' => $validated['user_id'],
-            'type' => $validated['type'],
+            'role' => $validated['role'],
             'title' => $validated['title'],
             'description' => $validated['description'],
             ]

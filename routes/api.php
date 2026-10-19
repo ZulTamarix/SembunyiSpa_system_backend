@@ -9,7 +9,6 @@ use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\BannerController;
-use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationController;
 
@@ -24,4 +23,4 @@ Route::apiResource('booking', BookingController::class);
 Route::apiResource('notification', NotificationController::class);
 
 // bonus
-Route::get('/available/therapist', [AvailabilityController::class, 'getTherapist']); // get total booking
+Route::get('/available/therapist', [BookingController::class, 'getTherapist']); // get total booking

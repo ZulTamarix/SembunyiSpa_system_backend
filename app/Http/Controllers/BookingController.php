@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Booking\Booking;
 use App\Models\Booking\Booking_selected;
+use App\Models\Roster\Roster;
 use App\Models\User;
 use App\Models\Room;
 
@@ -17,6 +19,7 @@ class BookingController
     {
         $switch = $request->input('switch');
         $currentDate = $request->input('date');
+
         // a)
         if($switch == 'booking') {
             return response()->json(
@@ -139,4 +142,59 @@ class BookingController
         });
 
     }
+
+    // BONUS
+        // 1) GET available therapist
+        public function getTherapist(Request $request)
+        {
+            // Log::info($therapist_list);
+
+            $date = $request->date;
+            $time_start = $request->time_start;
+            $time_end = $request->time_end;
+
+            $therapist_list = $request->therapist_list;
+            $room_list = $request->room_list;
+
+            $available_therapist = 
+                Roster::with([
+                    'shift',
+                    'booking_selected.booking'
+                ])
+                ->whereDate('date', $date)
+                ->whereIn('user_id', $therapist_list)
+                ->whereNotNull('roster_shift_id')
+                ->whereNull('roster_leave_id')
+
+                // a) Check roster shift covers requested time
+                ->whereHas('shift', function ($query) use ($time_start, $time_end) {
+                    $query->where('time_start', '<=', $time_start)
+                        ->where('time_end', '>=', $time_end);
+                })
+
+                // b) Remove entire roster if it has a conflicting booking
+                ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
+                    $query->whereDate('date_start', $date)
+                        ->where('time_start', '<', $time_end)
+                        ->where('time_end', '>', $time_start);
+                })
+
+                ->get()
+                ->pluck('user');
+            $available_room = 
+                Room::whereIn('id', $room_list)
+                ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
+                    $query->whereDate('date_start', $date)
+                        ->where('time_start', '<', $time_end)
+                        ->where('time_end', '>', $time_start);
+                })
+                ->get();
+
+            // return response()->json($available_therapist, $available_therapist);
+            return response()->json([
+                'therapist' => $available_therapist,
+                'room' => $available_room
+            ]);
+
+        }
 }

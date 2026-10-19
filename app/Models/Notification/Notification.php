@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Notification;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Notification extends Model
 {
     protected $table = 'notification'; // 👈 database name
     protected $fillable = [
-        'user_id',
-        'type',
+        'role',
         'title',
         'description'
     ];
