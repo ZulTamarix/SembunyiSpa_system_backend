@@ -18,6 +18,7 @@ class BookingController
     public function index(Request $request)
     {
         $switch = $request->input('switch');
+        $extra = $request->input('extra');
         $currentDate = $request->input('date');
 
         // a)
@@ -43,26 +44,41 @@ class BookingController
         }
         // b)
         else if($switch == 'therapist') {
-            return response()->json(
-                User::where('role', 'therapist')
-                    ->with([
-                        'booking_selected' => function ($query) use ($currentDate) {
-                            $query->whereHas('booking', function ($query) use ($currentDate) {
-                                $query->whereDate('date_start', $currentDate);
-                            });
-                        },
-                        'booking_selected.package',
-                        'booking_selected.booking',
-                        'booking_selected.booking.user',
-                    ])
-                    ->get()
-                    ->map(function ($user) {
-                        return [
-                            'user' => $user->except('booking_selected'),
-                            'booking_selected' => $user->booking_selected,
-                        ];
-                    })
-            );
+            if($extra == 'currentDay') {
+                return response()->json(
+                    Booking::where('date_start', $currentDate)
+                        ->with([
+                            'booking_selected',
+                            'booking_selected.package',
+                            'booking_selected.user',
+                            'booking_selected.room',
+                        ])
+                        ->get()
+                );
+            }
+            else {
+                return response()->json(
+                    User::where('role', 'therapist')
+                        ->with([
+                            'booking_selected' => function ($query) use ($currentDate) {
+                                $query->whereHas('booking', function ($query) use ($currentDate) {
+                                    $query->whereDate('date_start', $currentDate);
+                                });
+                            },
+                            'booking_selected.package',
+                            'booking_selected.booking',
+                            'booking_selected.booking.user',
+                        ])
+                        ->get()
+                        ->map(function ($user) {
+                            return [
+                                'user' => $user->except('booking_selected'),
+                                'booking_selected' => $user->booking_selected,
+                            ];
+                        })
+                );
+            }
+
         }
         // c)
         else if($switch == 'room') {

@@ -8,7 +8,7 @@ use App\Models\Roster\Roster_shift;
 use App\Models\Roster\Roster_leave;
 use App\Models\Roster\Roster;
 use App\Models\Roster\Roster_adjustment;
-// use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 class RosterController
 {
@@ -16,10 +16,11 @@ class RosterController
     public function index(Request $request)
     {
         $switch = $request->input('switch');
+        $extra = $request->input('extra');
+
+        $currentDay = $request->input('currentDay');
         $currentYear = $request->input('currentYear');
         $currentMonth = $request->input('currentMonth');
-        // Log::info('Current Year = ' . $currentYear);
-        // Log::info('Current Month = ' . $currentMonth);
 
         // 1) shift
         if ($switch == 'shift') {
@@ -31,23 +32,40 @@ class RosterController
         }
         // 3) roster
         else if ($switch == 'roster') {
-            // return response()->json(Roster::all());
-            return response()->json(
-                // Roster::with(['shift', 'leave'])->get()->map(function ($item) {
 
-                Roster::with(['shift', 'leave', 'adjustment'])
-                    ->whereMonth('date', $currentMonth)
-                    ->whereYear('date', $currentYear)
-                    ->get()
-                    ->map(function ($item) {
-                    return [
-                        'roster' => $item,
-                        'roster_leave' => $item->leave,
-                        'roster_shift' => $item->shift,
-                        'roster_adjustment' => $item->adjustment,
-                    ];
-                }),
-            );
+            if($extra == 'currentDay') {
+                return response()->json(
+                    Roster::with(['shift', 'leave', 'adjustment', 'user'])
+                        ->whereDate('date', $currentDay)
+                        // ->whereMonth('date', $currentMonth)
+                        // ->whereYear('date', $currentYear)
+                        ->get()
+                        ->map(function ($item) {
+                        return [
+                            'roster' => $item,
+                            'roster_leave' => $item->leave,
+                            'roster_shift' => $item->shift,
+                            'roster_adjustment' => $item->adjustment,
+                        ];
+                    }),
+                );
+            }
+            else {
+                return response()->json(
+                    Roster::with(['shift', 'leave', 'adjustment'])
+                        ->whereMonth('date', $currentMonth)
+                        ->whereYear('date', $currentYear)
+                        ->get()
+                        ->map(function ($item) {
+                        return [
+                            'roster' => $item,
+                            'roster_leave' => $item->leave,
+                            'roster_shift' => $item->shift,
+                            'roster_adjustment' => $item->adjustment,
+                        ];
+                    }),
+                );
+            }
         }
     }
 
