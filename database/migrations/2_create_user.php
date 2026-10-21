@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('name'); 
             $table->string('email'); 
             $table->string('phoneNo'); 
-            $table->string('username')->nullable();
             $table->string('password')->nullable();
             $table->string('status'); 
             $table->string('date_joined')->nullable(); 

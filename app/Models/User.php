@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
+
 use App\Models\Membership;
 use App\Models\Voucher\Voucher_customer;
 use App\Models\Booking\Booking_selected;
@@ -10,13 +12,14 @@ use App\Models\Booking\Booking;
 
 class User extends Model
 {
+    use HasApiTokens;
+
     protected $table = 'user'; // 👈 database name
     protected $fillable = [
         'role',
         'name',
         'email',
         'phoneNo',
-        'username',
         'password',
         'status',
         'date_joined',
@@ -44,6 +47,10 @@ class User extends Model
     }
 
 
+    // for password
+    // protected $hidden = [
+    //     'password',
+    // ];
     // 👇 Sort 'role' in asc order 'GLOBALLY'
     protected static function booted()
     {

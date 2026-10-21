@@ -11,16 +11,28 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AuthController;
 
-Route::apiResource('room', RoomController::class);
-Route::apiResource('user', UserController::class);
-Route::apiResource('package', PackageController::class);
-Route::apiResource('membership', MembershipController::class);
-Route::apiResource('roster', RosterController::class);
-Route::apiResource('voucher', VoucherController::class);
-Route::apiResource('banner', BannerController::class);
-Route::apiResource('booking', BookingController::class);
-Route::apiResource('notification', NotificationController::class);
+// public
+    Route::apiResource('login', AuthController::class);
+    
+// protected
+    Route::middleware('auth:sanctum')->group(function () {
 
-// bonus
-Route::get('/available/therapist', [BookingController::class, 'getTherapist']); // get total booking
+        // authentication
+        Route::post('/logout', [AuthController::class, 'logout']);
+
+        // normal
+        Route::apiResource('room', RoomController::class);
+        Route::apiResource('user', UserController::class);
+        Route::apiResource('package', PackageController::class);
+        Route::apiResource('membership', MembershipController::class);
+        Route::apiResource('roster', RosterController::class);
+        Route::apiResource('voucher', VoucherController::class);
+        Route::apiResource('banner', BannerController::class);
+        Route::apiResource('booking', BookingController::class);
+        Route::apiResource('notification', NotificationController::class);
+
+        // bonus
+        Route::get('/available/therapist', [BookingController::class, 'getTherapist']); // get total booking
+    });
