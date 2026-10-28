@@ -30,6 +30,8 @@ class MembershipController
         $validated = $request->validate([
             // a) membership
             'tier' => 'required|string',
+            'serial_code' => 'required|string',
+            'duration' => 'required|integer',
             
             // b) voucher
             'voucher_list' => 'required|array',
@@ -49,6 +51,8 @@ class MembershipController
             $membership = Membership::create(
                 [
                     'tier' => $validated['tier'],
+                    'serial_code' => $validated['serial_code'],
+                    'duration' => $validated['duration'],
                 ]
             );
             // 2. Create voucher + membership privilege

@@ -22,7 +22,6 @@ class User extends Model
         'phoneNo',
         'password',
         'status',
-        'date_joined',
         'membership_id',
         'membership_date_expired',
         'specialty',

@@ -127,10 +127,11 @@ class PackageController
                     ]
                 );
                 // e) Create data for 'package_detail'
-                foreach ($validated['service_list'] as $service) {
+                foreach ($validated['service_list'] as $index => $service) {
                     Package_service::create([
                         'package_id' => $package->id,
                         'service_id' => $service,
+                        'order' => $index + 1
                     ]);
                 }
             });

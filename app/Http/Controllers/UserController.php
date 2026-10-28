@@ -16,24 +16,47 @@ class UserController
     public function index(Request $request)
     {
         $role = $request->input('role');
-        $extra_1 = $request->input('extra_1');
+        $extra = $request->input('extra');
 
         // if role is specified
         if ($role) {
             // a)
-            if($extra_1 == 'include_admin') {
+            if($extra == 'include_admin') {
                 return response()->json(
                     User::whereIn('role', ['therapist', 'admin'])->get()
                 );
             }
             // b)
-            else if($extra_1 == 'full_customer') {
+            if($extra == 'include_voucher') {
                 return response()->json(
-                    User::where('role', $role)->with('voucherCustomers', 'voucherCustomers.voucher', 'membership', 'booking')->get()
+                    User::where('role', 'customer')
+                    ->with([
+                        'voucherCustomers',
+                        'voucherCustomers.voucher'
+                    ])
+                    ->get()
+                    ->map(function ($booking) {
+                        return [
+                            'user' => $booking->except('voucherCustomers'),
+                            'voucherCustomers' => $booking->voucherCustomers
+                                ->filter(function ($voucherCustomer) {
+                                    return $voucherCustomer->voucher
+                                        && $voucherCustomer->quantity !== 0
+                                        && $voucherCustomer->voucher->discount_type != 'complimentary';
+                                })
+                                ->values(),
+                        ];
+                    })
+                );
+            }
+            // c)
+            else if($extra == 'full_customer') {
+                return response()->json(
+                    User::where('role', $role)->with('voucherCustomers', 'voucherCustomers.voucher', 'voucherCustomers.log', 'membership', 'booking')->get()
                 );
 
             }
-            // c)
+            // d)
             else {
                 return response()->json(
                     User::where('role', $role)->get()
@@ -56,7 +79,6 @@ class UserController
             'password'  => 'nullable|string',
             'specialty'  => 'nullable|string',
             'code'      => 'nullable|string',
-            'date_joined'   => 'nullable|string',
         ]);
 
         $user =User::Create(
@@ -67,7 +89,6 @@ class UserController
                 'name' => $validated['name'],
                 'password' => Hash::make($validated['password']),
                 'status' => 'active',
-                'date_joined'   => $validated['date_joined'],
 
                 ...($validated['role'] == 'therapist' ? [
                     'code'  => $validated['code'],
@@ -140,7 +161,6 @@ class UserController
                 'password'  => 'required|string',
                 'specialty'  => 'nullable|string',
                 'code'      => 'nullable|string',
-                'date_joined'   => 'nullable|string',
             ]);
 
             // 1. Update user
@@ -151,7 +171,6 @@ class UserController
                 'name' => $validated['name'],
                 'password' => Hash::make($validated['password']),
                 'status' => 'active',
-                'date_joined'   => $validated['date_joined'],
 
                 ...($validated['role'] == 'therapist' ? [
                     'code'  => $validated['code'],

@@ -21,7 +21,10 @@ class AuthController
             ]);
 
             // check for username+password
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)
+                        ->where('role', 'admin')
+                        ->first();
+
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'message' => 'Invalid email or password'
@@ -37,6 +40,7 @@ class AuthController
                 'user' => $user,
             ]);
         }
+        
     }
     public function logout(Request $request)
     {

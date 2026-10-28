@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('package_id')->nullable()->constrained('package')->onDelete('cascade');
             $table->foreignId('service_id')->nullable()->constrained('package')->onDelete('cascade');
+            $table->integer('order')->nullable();
             $table->timestamps();
         });
     }

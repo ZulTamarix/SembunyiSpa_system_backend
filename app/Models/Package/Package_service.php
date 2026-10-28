@@ -9,7 +9,8 @@ class Package_service extends Model
     protected $table = 'package_service'; // 👈 database name
     protected $fillable = [
         'package_id',
-        'service_id'
+        'service_id',
+        'order'
     ];
 
     public function service()

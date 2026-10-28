@@ -70,6 +70,7 @@ class VoucherController
                             'voucher_id' => $voucher->id,
                             'user_id' => $customer->id,
                             'quantity' => $validated['quantity'],
+                            'serial_no' => $validated['serial_no'],
                         ]);
                     }
                 }
@@ -83,6 +84,7 @@ class VoucherController
                         'voucher_id' => $voucher->id,
                         'user_id' => $validated['selected_customer'],
                         'quantity' => $validated['quantity'],
+                        'serial_no' => $validated['serial_no'],
                     ]);
                 }
             });
@@ -95,6 +97,7 @@ class VoucherController
                 'user_id' => 'required|integer',
                 'quantity' => 'nullable|integer',
                 'date_expired' => 'nullable|string',
+                'serial_no' => 'nullable|string'
             ]);
 
             // Create data for 'voucher_customer' 
@@ -103,6 +106,7 @@ class VoucherController
                 'user_id' => $validated['user_id'],
                 'quantity' => $validated['quantity'],
                 'date_expired' => $validated['date_expired'],
+                'serial_no' => $validated['serial_no'],
             ]);
         }
 

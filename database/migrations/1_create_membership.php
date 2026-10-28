@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('membership', function (Blueprint $table) {
             $table->id();
             $table->string('tier');
+            $table->string('serial_code');
+            $table->integer('duration');
             $table->timestamps();
         });
     }

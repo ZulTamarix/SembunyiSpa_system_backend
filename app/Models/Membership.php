@@ -9,7 +9,9 @@ class Membership extends Model
 {
     protected $table = 'membership'; // 👈 database name
     protected $fillable = [
-        'tier'
+        'tier',
+        'serial_code',
+        'duration'
     ];
     
     public function voucher()
