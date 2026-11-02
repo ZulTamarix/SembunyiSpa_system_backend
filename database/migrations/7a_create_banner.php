@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('poster');
             $table->string('title');
-            $table->string('description');
+            $table->longText('description');
             $table->string('status');
             $table->date('date_expired');
             $table->timestamps();

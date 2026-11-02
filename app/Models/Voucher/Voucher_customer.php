@@ -13,7 +13,8 @@ class Voucher_customer extends Model
         'user_id',
         'quantity',
         'date_expired',
-        'serial_no'
+        'serial_no',
+        'status'
     ];
 
     function voucher()

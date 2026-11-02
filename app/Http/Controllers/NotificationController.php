@@ -5,55 +5,58 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
-use App\Models\Notification\Notification;
-use App\Models\Notification\Notification_customer;
+use App\Models\Notification;
 
 class NotificationController
 {
     // 1) GET — fetch all
     public function index()
     {
-        return response()->json(Notification::all());
+        $notifications = Notification::with('user:id,role')
+            ->orderBy('id')
+            ->get()
+            ->unique(function ($notification) {
+                return $notification->created_at . '|' . $notification->title;
+            })
+            ->values();
 
+        return response()->json($notifications);
     }
 
     // 2) POST
     public function store(Request $request)
     {
+        Log::info($request);
+
+        $role = $request->input('role');
         $validated = $request->validate([
-            'role'  => 'required|string',
-            'title'  => 'required|string',
-            'description'  => 'required|string',
+            'title'       => 'required|string',
+            'description' => 'required|string',
         ]);
 
         // if 1 fail, all fail
-        DB::transaction(function () use ($validated) {
+        DB::transaction(function () use ($validated, $role) {
 
-            // 1. Create notification
-            $notification = Notification::create([
-                'role'        => $validated['role'],
-                'title'       => $validated['title'],
-                'description' => $validated['description'],
-            ]);
+            // Get all user IDs with the selected role
+            $userIds = User::where('role', $role)->pluck('id');
+            Log::info($userIds);
 
-            // 2. Get all users based on role
-            $user_ids = User::where('role', $validated['role'])
-                ->pluck('id');
-
-            // 3. Create notification_customer for every user
-            foreach ($user_ids as $user_id) {
-                Notification_customer::create([
-                    'notification_id' => $notification->id,
-                    'user_id'         => $user_id,
+            // Create notification for each user
+            foreach ($userIds as $userId) {
+                Notification::create([
+                    'user_id'     => $userId,
+                    'title'       => $validated['title'],
+                    'description' => $validated['description'],
                 ]);
             }
 
-            // Mail::raw($validated['description'], function ($message) use ($validated, $user) {
-            //     $message->to($user->email)
-            //             ->subject($validated['title']);
-            // });
+            return response()->json([
+                'status'  => true,
+                'message' => 'Notification created successfully',
+            ]);
         });
     }
 

@@ -28,4 +28,30 @@ class RoomController
             ]
         );
     }
+
+    // 3) PUT
+    public function update(Request $request, string $id)
+    {
+        // find id
+        $room = Room::findOrFail($id);
+
+        // Validate request
+        $validated = $request->validate([
+            'name'  => 'required|string',
+            'description'  => 'required|string',
+        ]);
+
+        // Update
+        $room->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+        ]);
+    }
+    
+    // 4) DELETE
+    public function destroy(string $id)
+    {
+        $room = Room::findOrFail($id);
+        $room->delete();
+    }
 }

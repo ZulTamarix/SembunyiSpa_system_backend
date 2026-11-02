@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use App\Models\Voucher\Voucher;
 use App\Models\Voucher\Voucher_customer;
+use App\Models\Log\Log_voucher;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -13,18 +14,39 @@ class VoucherController
     // 1) GET — fetch all
     public function index(Request $request)
     {
-        $extra = $request->input('extra');
-        if($extra == 'exclude inactive') {
-            return response()->json(
-                Voucher::where('status', '!=', 'inactive')->get()
-            );
+        try {
+            $switch = $request->input('switch');
+            $extra = $request->input('extra');
+            $user_id = $request->input('user_id');
 
-        }
-        else {
-            return response()->json(Voucher::all());
-        }
+            if ($switch == 'voucher') {
 
+                if ($extra == 'exclude inactive') {
+                    return response()->json(Voucher::where('status', '!=', 'inactive')->get());
+                }
+
+                return response()->json(Voucher::all());
+            }
+
+            else if ($switch == 'customer') {
+                return response()->json(Voucher_customer::with('voucher', 'log')
+                                ->where('user_id', $user_id)
+                                ->get());
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid switch'
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
     // 2) POST
     public function store(Request $request)
@@ -71,6 +93,7 @@ class VoucherController
                             'user_id' => $customer->id,
                             'quantity' => $validated['quantity'],
                             'serial_no' => $validated['serial_no'],
+                            'status' => $validated['status'],
                         ]);
                     }
                 }
@@ -85,6 +108,7 @@ class VoucherController
                         'user_id' => $validated['selected_customer'],
                         'quantity' => $validated['quantity'],
                         'serial_no' => $validated['serial_no'],
+                        'status' => $validated['status'],
                     ]);
                 }
             });
@@ -97,7 +121,8 @@ class VoucherController
                 'user_id' => 'required|integer',
                 'quantity' => 'nullable|integer',
                 'date_expired' => 'nullable|string',
-                'serial_no' => 'nullable|string'
+                'serial_no' => 'nullable|string',
+                'status' => 'nullable|string'
             ]);
 
             // Create data for 'voucher_customer' 
@@ -107,6 +132,7 @@ class VoucherController
                 'quantity' => $validated['quantity'],
                 'date_expired' => $validated['date_expired'],
                 'serial_no' => $validated['serial_no'],
+                'status' => $validated['status'],
             ]);
         }
 
@@ -115,15 +141,16 @@ class VoucherController
     // 3) PUT
     public function update(Request $request, string $id)
     {
-
-        // check if it exist
-        $voucher = Voucher::findOrFail($id);
+        $customer_id = $request->input('customer_id');
         $switch = $request->input('switch');
 
         // 1)
         if($switch == 'voucher'){
 
-             // Validate request
+            // check if it exist
+            $voucher = Voucher::findOrFail($id);
+
+            // Validate request
             $validated = $request->validate([
                 'code' => 'required|string',
                 'description' => 'required|string',
@@ -148,6 +175,27 @@ class VoucherController
                 'discount_value' => $validated['discount_value'],
                 'quantity' => $validated['quantity'],
             ]);
+        }
+        // 2) set quantity == 0
+        else if($switch == 'customer') {
+
+            // if 1 fail, all fail
+            DB::transaction(function () use ($id) {
+                // check if it exist
+                $voucher_customer = Voucher_customer::findOrFail($id);
+
+                // 1. Update user
+                $voucher_customer->update([
+                    'status' => 'redeemed',
+                    'quantity' => 0,
+                ]);
+
+                // 2. Add log
+                Log_voucher::create([
+                    'voucher_customer_id' =>  $id,
+                    'action' => "Redeem the voucher"
+                ]);
+            });
         }
     }
 

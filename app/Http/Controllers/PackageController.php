@@ -16,57 +16,76 @@ class PackageController
     // 1) GET — fetch all
     public function index(Request $request)
     {
-        $switch = $request->input('switch');
-        $extra = $request->input('extra');
+        try {
+            $switch = $request->input('switch');
+            $extra = $request->input('extra');
 
-        // a)
-        if($switch == 'package') {
-            // if($extra == 'for_booking') {
-            return response()->json(
-                Package::where('type', 'package')->with('package_service', 'package_service.room', 'package_service.therapist', 'package_category')->get()->map(function ($package) {
-                    return [
-                        'package' => $package->except('package_service', 'package_service.room', 'package_service.therapist', 'package_category'),
-                        'package_category' => $package->package_category,
-                        'package_service' => $package->package_service,
-                    ];
-                })
-            );
-            // }
-            // else {
-            //     return response()->json(
-            //         Package::where('type', 'package')->with('package_service', 'package_category')->get()->map(function ($package) {
-            //             return [
-            //                 'package' => $package->except('package_service', 'package_category'),
-            //                 'package_category' => $package->package_category,
-            //                 'package_service' => $package->package_service,
-            //             ];
-            //         })
-            //     );
-            // }
+            // a)
+            if ($switch == 'package') {
+                return response()->json(
+                    Package::where('type', 'package')
+                        ->with('package_category', 'package_service', 'package_service.room', 'package_service.therapist')
+                        ->get()
+                        ->map(function ($package) {
+                            return [
+                                'package' => $package->except('package_service', 'package_service.room', 'package_service.therapist', 'package_category'),
+                                'package_category' => $package->package_category,
+                                'package_service' => $package->package_service,
+                            ];
+                        })
+                );
+            }
+            // b)
+            else if ($switch == 'service') {
+                $query = Package::where('type', 'service');
+
+                if ($extra == 'for_booking') {
+                    $query->where('is_standalone', '!=', 0);
+                    
+                    return response()->json(
+                        $query->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')
+                            ->get()
+                            ->map(function ($package) {
+                                return [
+                                    'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
+                                    'package_category' => $package->package_category,
+                                    'package_therapist' => $package->package_therapist,
+                                    'package_room' => $package->package_room,
+                                ];
+                            })
+                    );
+                }
+                else {
+                    return response()->json(
+                        $query->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')
+                            ->get()
+                            ->map(function ($package) {
+                                return [
+                                    'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
+                                    'package_category' => $package->package_category,
+                                    'package_therapist' => $package->package_therapist,
+                                    'package_room' => $package->package_room,
+                                ];
+                            })
+                    );
+                }
+            }
+            // c)
+            else if ($switch == 'category') {
+                return response()->json(Package_category::all());
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid switch'
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-        // b)
-        else if($switch == 'service') {
-            $query = Package::where('type', 'service');
-
-            if ($extra == 'for_booking') 
-                $query->where('is_standalone', '!=', 0);
-
-            return response()->json(
-                $query->with('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room')->get()->map(function ($package) {
-                    return [
-                        'package' => $package->except('package_category', 'package_therapist', 'package_therapist.therapist', 'package_room', 'package_room.room'),
-                        'package_category' => $package->package_category,
-                        'package_therapist' => $package->package_therapist,
-                        'package_room' => $package->package_room,
-                    ];
-                })
-            );
-        }
-        // c)
-        else if($switch == 'category') {
-            return response()->json(Package_category::all());
-        }
-
     }
 
     // 2) POST
@@ -228,5 +247,54 @@ class PackageController
             );
         }
 
+    }
+
+    // 3) PUT
+    public function update(Request $request, string $id)
+    {
+        // check if it exist
+        $switch = $request->input('switch');
+
+        // 1)
+        if($switch == 'package'){
+        }
+        // 2)
+        else if($switch == 'service'){
+        }
+        // 3)
+        else if($switch == 'category'){
+            // find id
+            $package_category = Package_category::findOrFail($id);
+
+            // Validate request
+            $validated = $request->validate([
+                'name'  => 'required|string',
+            ]);
+
+            // Update
+            $package_category->update(
+                [
+                    'name' => $validated['name'],
+                ]
+            );
+        }
+    }
+    
+    // 4) DELETE
+    public function destroy(Request $request,string $id)
+    {
+        $switch = $request->input('switch');
+
+        // 1)
+        if($switch == 'package'){
+        }
+        // 2)
+        else if($switch == 'service'){
+        }
+        // 3)
+        else if($switch == 'category'){
+            $package_category = Package_category::findOrFail($id);
+            $package_category->delete();
+        }
     }
 }

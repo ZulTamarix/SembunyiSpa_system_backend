@@ -25,7 +25,8 @@ class User extends Model
         'membership_id',
         'membership_date_expired',
         'specialty',
-        'code'
+        'code',
+        'date_birthday'
     ];
 
     function membership()

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
+use App\Models\Membership;
 use App\Models\Voucher\Voucher;
 use App\Models\Voucher\Voucher_customer;
 
@@ -79,9 +80,10 @@ class UserController
             'password'  => 'nullable|string',
             'specialty'  => 'nullable|string',
             'code'      => 'nullable|string',
+            'date_birthday' => 'nullable|string',
         ]);
 
-        $user =User::Create(
+        $user = User::Create(
             [ 
                 'email' => $validated['email'],
                 'phoneNo' => $validated['phoneNo'],
@@ -89,6 +91,7 @@ class UserController
                 'name' => $validated['name'],
                 'password' => Hash::make($validated['password']),
                 'status' => 'active',
+                'date_birthday' => $validated['date_birthday'],
 
                 ...($validated['role'] == 'therapist' ? [
                     'code'  => $validated['code'],
@@ -112,23 +115,28 @@ class UserController
         $switch = $request->input('switch');
 
         // 1)
-        if($switch == 'membership'){
+        if ($switch == 'membership') {
 
-             // Validate request
             $validated = $request->validate([
                 'membership_id' => 'required|integer',
                 'membership_date_expired' => 'nullable|string',
-                'code' => 'required|string',
             ]);
 
-            // if 1 fail, all fail
-            DB::transaction(function () use ($validated, $user) {
+            // Get membership
+            $membership = Membership::findOrFail($validated['membership_id']);
+
+            // Count users that already have this membership
+            $total = User::where('membership_id', $membership->id)->count();
+
+            // Generate code
+            $code = $membership->serial_code . ($total + 1);
+            DB::transaction(function () use ($validated, $user, $code) {
 
                 // 1. Update user
                 $user->update([
                     'membership_id' => $validated['membership_id'],
                     'membership_date_expired' => $validated['membership_date_expired'],
-                    'code' => $validated['code'],
+                    'code' => $code,
                 ]);
 
                 // 2. Get all active vouchers for this membership
@@ -138,12 +146,12 @@ class UserController
 
                 // 3. Create voucher_customer for each voucher
                 foreach ($vouchers as $voucher) {
-
                     Voucher_customer::create([
                         'voucher_id' => $voucher->id,
                         'user_id' => $user->id,
                         'quantity' => $voucher->quantity,
-                        'date_expired' => $voucher->date_expired,
+                        'date_expired' => $validated['membership_date_expired'],
+                        'status' => $voucher->status,
                     ]);
                 }
             });
@@ -161,6 +169,7 @@ class UserController
                 'password'  => 'required|string',
                 'specialty'  => 'nullable|string',
                 'code'      => 'nullable|string',
+                'date_birthday' => 'nullable|string',
             ]);
 
             // 1. Update user
@@ -171,6 +180,7 @@ class UserController
                 'name' => $validated['name'],
                 'password' => Hash::make($validated['password']),
                 'status' => 'active',
+                'date_birthday' => $validated['date_birthday'],
 
                 ...($validated['role'] == 'therapist' ? [
                     'code'  => $validated['code'],

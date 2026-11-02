@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('quantity')->nullable();
             $table->date('date_expired')->nullable();
             $table->string('serial_no')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

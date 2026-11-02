@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Notification;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
@@ -9,7 +9,7 @@ class Notification extends Model
 {
     protected $table = 'notification'; // 👈 database name
     protected $fillable = [
-        'role',
+        'user_id',
         'title',
         'description'
     ];

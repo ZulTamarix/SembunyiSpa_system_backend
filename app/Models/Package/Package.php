@@ -3,6 +3,8 @@
 namespace App\Models\Package;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 class Package extends Model
 {
     protected $table = 'package'; // 👈 database name
@@ -35,6 +37,20 @@ class Package extends Model
     public function package_therapist()
     {
         return $this->hasMany(Package_therapist::class, 'package_id', 'id');
+    }
+
+    // change to bullet point
+    protected function description(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => preg_split('/\r\n|\r|\n/', $value, -1, PREG_SPLIT_NO_EMPTY)
+        );
+    }
+    protected function detail(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => preg_split('/\r\n|\r|\n/', $value, -1, PREG_SPLIT_NO_EMPTY)
+        );
     }
 }
     

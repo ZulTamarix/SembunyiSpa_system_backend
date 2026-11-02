@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 use App\Models\Roster\Roster_shift;
 use App\Models\Roster\Roster_leave;
 use App\Models\Roster\Roster;
 use App\Models\Roster\Roster_adjustment;
-use Illuminate\Support\Facades\Log;
 
 class RosterController
 {
@@ -92,6 +93,7 @@ class RosterController
                 ]
             );
         }
+
         // 2) leave
         else if ($switch == 'leave') {
             // validation
@@ -144,6 +146,16 @@ class RosterController
                 // Create (adjustment)
                 if (!empty($validated['adjustment_list'])) {
                     foreach ($validated['adjustment_list'] as $adjustment) {
+
+                        $exists = Roster_adjustment::where('roster_id', $roster->id)
+                            ->where('time_start', $adjustment['time_start'])
+                            ->where('time_end', $adjustment['time_end'])
+                            ->exists();
+
+                        if ($exists) {
+                            continue;
+                        }
+
                         Roster_adjustment::create([
                             'roster_id' => $roster->id,
                             'type' => $adjustment['type'],
@@ -204,7 +216,6 @@ class RosterController
         }
     }
     
-
     // 4) DELETE
     public function destroy(Request $request,string $id)
     {

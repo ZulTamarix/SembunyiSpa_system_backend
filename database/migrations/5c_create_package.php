@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('poster');
             $table->string('title');
             $table->string('description');
-            $table->integer('duration');
+            $table->longText('duration');
             $table->decimal('price', 10, 2);
             $table->string('gender');
-            $table->string('detail');
+            $table->longText('detail');
             $table->string('type');
             $table->foreignId('package_category_id')->nullable()->constrained('package_category')->onDelete('cascade');
 

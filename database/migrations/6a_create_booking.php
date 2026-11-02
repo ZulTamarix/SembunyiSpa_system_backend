@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('time_end');
             $table->string('status');
             $table->string('payment');
+            $table->string('payment_type')->nullable();
             $table->decimal('price_original', 10, 2);
             $table->decimal('price_discount', 10, 2)->nullable();
             $table->decimal('price_final', 10, 2);

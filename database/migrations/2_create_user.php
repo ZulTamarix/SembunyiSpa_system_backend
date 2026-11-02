@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('membership_date_expired')->nullable(); 
             $table->string('specialty')->nullable(); 
             $table->string('code')->nullable(); 
+            $table->string('date_birthday')->nullable(); 
             $table->timestamps();
         });
     }

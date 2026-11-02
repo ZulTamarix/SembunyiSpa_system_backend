@@ -21,6 +21,7 @@ class Booking extends Model
         'room_id',
         'status',
         'payment',
+        'payment_type',
         'price_original',
         'price_discount',
         'price_final',

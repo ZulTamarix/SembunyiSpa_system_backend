@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('roster_id')->constrained('roster')->onDelete('cascade');
             $table->string('type');
-            $table->string('time_start');
-            $table->string('time_end');
+            $table->time('time_start');
+            $table->time('time_end');
             $table->string('reason');
             $table->timestamps();
         });

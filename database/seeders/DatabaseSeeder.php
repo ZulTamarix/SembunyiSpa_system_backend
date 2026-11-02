@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
                 ['id'=> '3', 'role'=> 'therapist', 'name'=> 'Sophia Lee', 'email'=> 'sophia.lee@example.com', 'phoneNo'=> '0145678901', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> 'Manager', 'code'=> 'C9012', 'membership_id'=> null, 'membership_date_expired' => null, 'created_at'=> now(), 'updated_at'=> now()],
                 ['id'=> '4', 'role'=> 'therapist', 'name'=> 'Jason Wong', 'email'=> 'jason.wong@example.com', 'phoneNo'=> '0156789012', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> 'Spa Manager', 'code'=> 'C3456', 'membership_id'=> null, 'membership_date_expired' => null, 'created_at'=> now(), 'updated_at'=> now()],
                 ['id'=> '5', 'role'=> 'therapist', 'name'=> 'Emily Chong', 'email'=> 'emily.chong@example.com', 'phoneNo'=> '0167890123', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> 'Therapist', 'code'=> 'C7890', 'membership_id'=> null, 'membership_date_expired' => null, 'created_at'=> now(), 'updated_at'=> now()],
+                ['id'=> '14','role'=> 'customer', 'name'=> 'Norna', 'email'=> 'test', 'phoneNo'=> '0178901234', 'password'=> bcrypt('abc123'), 'status'=> 'active', 'specialty'=> null, 'code'=> null, 'created_at'=> now(), 'membership_id'=> null, 'membership_date_expired' => null, 'updated_at'=> now()],
                 ['id'=> '6', 'role'=> 'customer', 'name'=> 'Ryan Tan', 'email'=> 'ryan.tan@example.com', 'phoneNo'=> '0178901234', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> null, 'code'=> null, 'created_at'=> now(), 'membership_id'=> null, 'membership_date_expired' => null, 'updated_at'=> now()],
                 ['id'=> '7', 'role'=> 'customer', 'name'=> 'Michelle Wong', 'email'=> 'michelle.wong@example.com', 'phoneNo'=> '0189012345', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> null, 'code'=> null, 'membership_id'=> null, 'membership_date_expired' => null, 'created_at'=> now(), 'updated_at'=> now()],
                 ['id'=> '8', 'role'=> 'customer', 'name'=> 'Anthony', 'email'=> 'anthony.wong@example.com', 'phoneNo'=> '0134567890', 'password'=> bcrypt('password'), 'status'=> 'active', 'specialty'=> null, 'code'=> null,'membership_id'=> null, 'membership_date_expired' => null, 'created_at'=> now(), 'updated_at'=> now()],
@@ -195,34 +196,15 @@ class DatabaseSeeder extends Seeder
                 ['id' => 11, 'membership_id' => null, 'code' => 'GIFT30', 'description' => 'RM30 Gift Voucher', 'type' => 'gift', 'date_expired' => '2027-08-15', 'status' => 'inactive', 'discount_type' => 'discount_amount', 'discount_value' => 30, 'quantity' => 5, 'created_at' => now(), 'updated_at' => now()],
             ]);
             Voucher_customer::insert([
-                ['id' => 1, 'voucher_id' => 1, 'user_id' => 7, 'serial_no' => null, 'quantity' => 4, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 2, 'voucher_id' => 2, 'user_id' => 7, 'serial_no' => null, 'quantity' => 5, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 3, 'voucher_id' => 4, 'user_id' => 7, 'serial_no' => null, 'quantity' => 10, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 4, 'voucher_id' => 9, 'user_id' => 7, 'serial_no' => null, 'quantity' => 10, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 5, 'voucher_id' => 3, 'user_id' => 8, 'serial_no' => null, 'quantity' => 20, 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 1, 'voucher_id' => 1, 'user_id' => 7, 'serial_no' => null, 'quantity' => 4, 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 2, 'voucher_id' => 2, 'user_id' => 7, 'serial_no' => null, 'quantity' => 5, 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 3, 'voucher_id' => 4, 'user_id' => 7, 'serial_no' => null, 'quantity' => 10, 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 4, 'voucher_id' => 9, 'user_id' => 7, 'serial_no' => null, 'quantity' => 10, 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 5, 'voucher_id' => 3, 'user_id' => 8, 'serial_no' => null, 'quantity' => 20, 'status' => 'active', 'created_at' => now(), 'updated_at' => now()],
             ]);
         #endregion
 
         #region 5) --> Package + Service
-            Package_category::insert([
-                ['id' => 1, 'name' => 'Body Massage', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 2, 'name' => 'Body Treatment', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 3, 'name' => 'Sembunyi Spa Signature', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 4, 'name' => 'Hair Spa', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 5, 'name' => 'Sound Therapy', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 6, 'name' => 'Facial', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 7, 'name' => 'Spa Experiences', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 8, 'name' => 'Sembunyi Spa Signature', 'created_at' => now(), 'updated_at' => now()],
-            ]);
-            Package::insert([
-                ['id' => 1, 'type' => 'service', 'poster' => 'Service/service_1.jpg', 'title' => 'Ming Dynasty Princess Ritual',    'duration' => 50, 'price' => 388, 'gender' => 'single', 'package_category_id' => 1, 'is_standalone' => true, 'description' => 'A 2.5-hour East-meets-West spa journey inspired by the Ming dynasty princess. Combines Chinese meridian techniques, aromatherapy massage, and a soothing herbal body treatment.', 'detail' => '<ul><li>Chinese meridian massage</li><li>Aromatherapy oil massage</li><li>Herbal body treatment</li><li>Relaxing tea ritual</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 2, 'type' => 'service', 'poster' => 'Service/service_2.jpg', 'title' => 'Majapahit Queen Ritual',          'duration' => 40, 'price' => 368, 'gender' => 'single', 'package_category_id' => 2, 'is_standalone' => true, 'description' => 'A 2.5-hour Majapahit-inspired queen ritual. Begins with a Javanese Lulur scrub, continues with a deep Balinese massage, and concludes with a floral bath.', 'detail' => '<ul><li>Javanese Lulur body scrub</li><li>Balinese deep tissue massage</li><li>Traditional floral bath</li><li>Relaxing aromatherapy</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 4, 'type' => 'service', 'poster' => 'Service/service_3.jpg', 'title' => 'Jasmine Princess Ritual',         'duration' => 30, 'price' => 348, 'gender' => 'single', 'package_category_id' => 2, 'is_standalone' => false, 'description' => 'A feminine 2.5-hour ritual for women drawing on ancient court beauty traditions. Features a gentle full-body massage and jasmine-infused floral bath.', 'detail' => '<ul><li>Gentle full-body massage</li><li>Jasmine body treatment</li><li>Jasmine-infused floral bath</li><li>Calming aromatherapy</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 5, 'type' => 'service', 'poster' => 'Service/service_4.jpg', 'title' => 'Royal Herbal Compress',           'duration' => 50, 'price' => 228, 'gender' => 'single', 'package_category_id' => 1, 'is_standalone' => false, 'description' => 'A traditional herbal therapy combining warm herbal compresses with a relaxing full-body massage to release muscle tension and restore the body.', 'detail' => '<ul><li>Warm herbal compress</li><li>Full-body massage</li><li>Aromatherapy treatment</li><li>Muscle tension relief</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 6, 'type' => 'service', 'poster' => 'Service/service_5.jpg', 'title' => 'Balinese Aromatherapy Massage',   'duration' => 80, 'price' => 198, 'gender' => 'single', 'package_category_id' => 1, 'is_standalone' => true, 'description' => 'A relaxing traditional Balinese massage using aromatic essential oils and rhythmic pressure techniques to ease tension and promote deep relaxation.', 'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 3, 'type' => 'package', 'poster' => 'Service/service_1.jpg', 'title' => 'Massage',                         'duration' => 90, 'price' => 230, 'gender' => 'single', 'package_category_id' => 8, 'is_standalone' => null, 'description' => '... Entahlah', 'detail' => '<ul><li>Traditional massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 7, 'type' => 'package', 'poster' => 'Service/service_4.jpg', 'title' => 'Balinese Aromatherapy Massage',   'duration' => 130, 'price' => 800, 'gender' => 'single', 'package_category_id' => 7, 'is_standalone' => null, 'description' => 'Combination of service 1+2', 'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'created_at' => now(), 'updated_at' => now()],
-            ]);
             Room::insert([
                 ['id'=> 1, 'name'=> 'Bayu', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
                 ['id'=> 2, 'name'=> 'Embun', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
@@ -233,41 +215,61 @@ class DatabaseSeeder extends Seeder
                 ['id'=> 7, 'name'=> 'Seri', 'description'=> 'Single Room', 'created_at'=> now(), 'updated_at'=> now()],
                 ['id'=> 8, 'name'=> 'Mentari', 'description'=> 'Couple Room', 'created_at'=> now(), 'updated_at'=> now()],
             ]);
-            Package_therapist::insert([
-                ['id' => 1, 'package_id' => 1, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 2, 'package_id' => 1, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 3, 'package_id' => 1, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 4, 'package_id' => 2, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 5, 'package_id' => 6, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 6, 'package_id' => 6, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 7, 'package_id' => 6, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 8, 'package_id' => 6, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 9, 'package_id' => 6, 'user_id' => 5, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 10, 'package_id' => 4, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 11, 'package_id' => 4, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 12, 'package_id' => 5, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            Package_category::insert([
+                ['id' => 1, 'name' => 'Body Massage', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 2, 'name' => 'Body Treatment', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 3, 'name' => 'Sembunyi Spa Signature', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 4, 'name' => 'Hair Spa', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 5, 'name' => 'Sound Therapy', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 6, 'name' => 'Facial', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 7, 'name' => 'Spa Experiences', 'created_at' => now(), 'updated_at' => now()],
+                ['id' => 8, 'name' => 'Sembunyi Spa Signature', 'created_at' => now(), 'updated_at' => now()],
             ]);
-            Package_room::insert([
-                ['id' => 1, 'package_id' => 1, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 2, 'package_id' => 1, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 3, 'package_id' => 2, 'room_id' => 3, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 4, 'package_id' => 2, 'room_id' => 4, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 5, 'package_id' => 6, 'room_id' => 5, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 6, 'package_id' => 6, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 7, 'package_id' => 6, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 8, 'package_id' => 4, 'room_id' => 3, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 9, 'package_id' => 4, 'room_id' => 4, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 10, 'package_id' => 5, 'room_id' => 5, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 11, 'package_id' => 5, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 12, 'package_id' => 5, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ]);
-            Package_service::insert([
-                ['id' => 1, 'package_id' => 3, 'service_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 2, 'package_id' => 3, 'service_id' => 2, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 3, 'package_id' => 7, 'service_id' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 4, 'package_id' => 7, 'service_id' => 4, 'created_at' => now(), 'updated_at' => now()],
-                ['id' => 5, 'package_id' => 7, 'service_id' => 5, 'created_at' => now(), 'updated_at' => now()],
-            ]);
+            
+            // Package::insert([
+            //     ['id' => 1, 'type' => 'service', 'poster' => 'Service/service_1.jpg', 'title' => 'Ming Dynasty Princess Ritual',    'duration' => 50, 'price' => 388, 'gender' => 'single', 'package_category_id' => 1, 'is_standalone' => true, 'description' => 'A 2.5-hour East-meets-West spa journey inspired by the Ming dynasty princess. Combines Chinese meridian techniques, aromatherapy massage, and a soothing herbal body treatment.', 'detail' => '<ul><li>Chinese meridian massage</li><li>Aromatherapy oil massage</li><li>Herbal body treatment</li><li>Relaxing tea ritual</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 2, 'type' => 'service', 'poster' => 'Service/service_2.jpg', 'title' => 'Majapahit Queen Ritual',          'duration' => 40, 'price' => 368, 'gender' => 'single', 'package_category_id' => 2, 'is_standalone' => true, 'description' => 'A 2.5-hour Majapahit-inspired queen ritual. Begins with a Javanese Lulur scrub, continues with a deep Balinese massage, and concludes with a floral bath.', 'detail' => '<ul><li>Javanese Lulur body scrub</li><li>Balinese deep tissue massage</li><li>Traditional floral bath</li><li>Relaxing aromatherapy</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 4, 'type' => 'service', 'poster' => 'Service/service_3.jpg', 'title' => 'Jasmine Princess Ritual',         'duration' => 30, 'price' => 348, 'gender' => 'single', 'package_category_id' => 2, 'is_standalone' => false, 'description' => 'A feminine 2.5-hour ritual for women drawing on ancient court beauty traditions. Features a gentle full-body massage and jasmine-infused floral bath.', 'detail' => '<ul><li>Gentle full-body massage</li><li>Jasmine body treatment</li><li>Jasmine-infused floral bath</li><li>Calming aromatherapy</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 5, 'type' => 'service', 'poster' => 'Service/service_4.jpg', 'title' => 'Royal Herbal Compress',           'duration' => 50, 'price' => 228, 'gender' => 'single', 'package_category_id' => 1, 'is_standalone' => false, 'description' => 'A traditional herbal therapy combining warm herbal compresses with a relaxing full-body massage to release muscle tension and restore the body.', 'detail' => '<ul><li>Warm herbal compress</li><li>Full-body massage</li><li>Aromatherapy treatment</li><li>Muscle tension relief</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 6, 'type' => 'service', 'poster' => 'Service/service_5.jpg', 'title' => 'Balinese Aromatherapy Massage',   'duration' => 80, 'price' => 198, 'gender' => 'single', 'package_category_id' => 1, 'is_standalone' => true, 'description' => 'A relaxing traditional Balinese massage using aromatic essential oils and rhythmic pressure techniques to ease tension and promote deep relaxation.', 'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 3, 'type' => 'package', 'poster' => 'Service/service_1.jpg', 'title' => 'Massage',                         'duration' => 90, 'price' => 230, 'gender' => 'single', 'package_category_id' => 8, 'is_standalone' => null, 'description' => '... Entahlah', 'detail' => '<ul><li>Traditional massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 7, 'type' => 'package', 'poster' => 'Service/service_4.jpg', 'title' => 'Balinese Aromatherapy Massage',   'duration' => 130, 'price' => 800, 'gender' => 'single', 'package_category_id' => 7, 'is_standalone' => null, 'description' => 'Combination of service 1+2', 'detail' => '<ul><li>Traditional Balinese massage</li><li>Selected essential oils</li><li>Gentle stretching techniques</li><li>Deep relaxation treatment</li></ul>', 'created_at' => now(), 'updated_at' => now()],
+            // ]);
+            // Package_therapist::insert([
+            //     ['id' => 1, 'package_id' => 1, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 2, 'package_id' => 1, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 3, 'package_id' => 1, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 4, 'package_id' => 2, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 5, 'package_id' => 6, 'user_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 6, 'package_id' => 6, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 7, 'package_id' => 6, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 8, 'package_id' => 6, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 9, 'package_id' => 6, 'user_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 10, 'package_id' => 4, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 11, 'package_id' => 4, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 12, 'package_id' => 5, 'user_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            // ]);
+            // Package_room::insert([
+            //     ['id' => 1, 'package_id' => 1, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 2, 'package_id' => 1, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 3, 'package_id' => 2, 'room_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 4, 'package_id' => 2, 'room_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 5, 'package_id' => 6, 'room_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 6, 'package_id' => 6, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 7, 'package_id' => 6, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 8, 'package_id' => 4, 'room_id' => 3, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 9, 'package_id' => 4, 'room_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 10, 'package_id' => 5, 'room_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 11, 'package_id' => 5, 'room_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 12, 'package_id' => 5, 'room_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            // ]);
+            // Package_service::insert([
+            //     ['id' => 1, 'package_id' => 3, 'service_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 2, 'package_id' => 3, 'service_id' => 2, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 3, 'package_id' => 7, 'service_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 4, 'package_id' => 7, 'service_id' => 4, 'created_at' => now(), 'updated_at' => now()],
+            //     ['id' => 5, 'package_id' => 7, 'service_id' => 5, 'created_at' => now(), 'updated_at' => now()],
+            // ]);
         #endregion
 
         #region 6) --> Banner

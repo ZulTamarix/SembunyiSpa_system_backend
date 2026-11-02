@@ -18,4 +18,8 @@ class Membership extends Model
     {
         return $this->hasMany(Voucher::class, 'membership_id', 'id');
     } 
+    public function Customer()
+    {
+        return $this->belongsTo(Voucher::class, 'membership_id', 'id');
+    } 
 }
