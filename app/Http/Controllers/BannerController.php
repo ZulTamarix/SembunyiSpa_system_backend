@@ -53,10 +53,10 @@ class BannerController
     // 3) PUT
     public function update(Request $request, string $id)
     {
-        // check if it exist
+        // a) Check if it exists
         $banner = Banner::findOrFail($id);
 
-        // a) Validation
+        // b) Validation
         $validated = $request->validate([
             'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'title' => 'required|string',
@@ -65,13 +65,42 @@ class BannerController
             'date_expired' => 'required|string',
         ]);
 
-        // b) Update other fields
-        $banner -> update([
-            // 'poster' => $posterPath,
+        // c) Replace image if a new one is uploaded
+        if ($request->hasFile('poster')) {
+
+            // Delete old image
+            $oldImage = public_path($banner->poster);
+
+            if (file_exists($oldImage)) {
+                unlink($oldImage);
+            }
+
+            // Upload new image
+            $file = $validated['poster'];
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->move(
+                public_path('Banner'),
+                $filename
+            );
+
+            // Update image path
+            $banner->poster = 'Banner/' . $filename;
+        }
+
+        // d) Update other fields
+        $banner->update([
+            'poster' => $banner->poster,
             'title' => $validated['title'],
             'description' => $validated['description'],
             'status' => $validated['status'],
             'date_expired' => $validated['date_expired'],
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Banner updated successfully',
+            'data' => $banner
         ]);
     }
 

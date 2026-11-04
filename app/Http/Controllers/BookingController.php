@@ -23,8 +23,9 @@ class BookingController
     {
         try {
             $switch = $request->input('switch');
-            $extra = $request->input('extra');
             $currentDate = $request->input('date');
+            $firstDate = $request->input('firstDate');
+            $lastDate = $request->input('lastDate');
             $user_id = $request->input('user_id');
 
             // a) Booking
@@ -36,9 +37,11 @@ class BookingController
                     'user_shared',
                     'package',
                     'log',
+                    'user_couple',
+                    'room_couple',
                     'booking_selected.package',
                     'booking_selected.user',
-                    'booking_selected.room',
+                    'booking_selected.room'
                 ]);
 
                 if ($user_id) {
@@ -47,10 +50,12 @@ class BookingController
 
                 $data = $query->get()->map(function ($booking) {
                     return [
-                        'booking' => $booking->except('booking_selected', 'user', 'user_shared', 'package', 'log'),
+                        'booking' => $booking->except('booking_selected', 'user', 'user_shared', 'user_couple', 'room_couple', 'package', 'log'),
                         'booking_selected' => $booking->booking_selected,
                         'user' => $booking->user,
                         'user_shared' => $booking->user_shared,
+                        'user_couple' => $booking->user_couple,
+                        'room_couple' => $booking->room_couple,
                         'package' => $booking->package,
                         'log' => $booking->log
                     ];
@@ -61,49 +66,32 @@ class BookingController
 
             // b) Therapist
             else if ($switch == 'therapist') {
-                if ($extra == 'currentDay') {
+                $data = User::where('role', 'therapist')
+                    ->with([
+                        'booking_selected' => function ($query) use ($currentDate) {
+                            $query->whereHas('booking', function ($query) use ($currentDate) {
+                                $query->whereDate('date_start', $currentDate);
+                            });
+                        },
+                        'booking_selected.booking', //booking
+                        'booking_selected.package', // package
+                        'booking_selected.booking.package', // service
+                        'booking_selected.booking.user', // therapist
+                    ])
+                    ->get()
+                    ->map(function ($user) {
+                        // Remove duplicate booking_id, keeping the first one
+                        $bookingSelected = $user->booking_selected
+                            ->unique('booking_id')
+                            ->values();
 
-                    $data = Booking::where('date_start', $currentDate)
-                        ->with([
-                            'booking_selected',
-                            'booking_selected.package',
-                            'booking_selected.user',
-                            'booking_selected.room',
-                        ])
-                        ->get();
+                        return [
+                            'user' => $user->except('booking_selected'),
+                            'booking_selected' => $bookingSelected,
+                        ];
+                    });
 
-                        return response()->json($data);
-                }
-
-          
-                else {
-                    $data = User::where('role', 'therapist')
-                        ->with([
-                            'booking_selected' => function ($query) use ($currentDate) {
-                                $query->whereHas('booking', function ($query) use ($currentDate) {
-                                    $query->whereDate('date_start', $currentDate);
-                                });
-                            },
-                            'booking_selected.booking', //booking
-                            'booking_selected.package', // package
-                            'booking_selected.booking.package', // service
-                            'booking_selected.booking.user', // therapist
-                        ])
-                        ->get()
-                        ->map(function ($user) {
-                            // Remove duplicate booking_id, keeping the first one
-                            $bookingSelected = $user->booking_selected
-                                ->unique('booking_id')
-                                ->values();
-
-                            return [
-                                'user' => $user->except('booking_selected'),
-                                'booking_selected' => $bookingSelected,
-                            ];
-                        });
-
-                    return response()->json($data);
-                }
+                return response()->json($data);
             }
 
             // c) Room
@@ -134,6 +122,40 @@ class BookingController
 
                 return response()->json($data);
             }
+
+            // d) dashboard
+            else if ($switch == 'dashboard') {
+                $data = Booking::where('date_start', $currentDate)
+                    ->with([
+                        'booking_selected',
+                        'booking_selected.package',
+                        'booking_selected.user',
+                        'booking_selected.room',
+                        'package'
+                    ])
+                    ->get();
+
+                    return response()->json($data);
+            }
+
+            // e) venue
+            else if ($switch == 'venue') {
+                $data = Booking::whereBetween('date_start', [$firstDate, $lastDate])
+                    ->select('price_final', 'payment', 'date_start')
+                    ->get();
+
+                    // calculate as statistic
+                    $daily_predict = $data->where('date_start', now()->toDateString())->sum('price_final');
+                    $weekly_predict = $data->filter(fn($item) => Carbon::parse($item->date_start)->isSameWeek(now()))->sum('price_final');
+                    $monthly_actual = $data->where('payment', 'paid')->sum('price_final');
+
+                return response()->json([
+                    'daily_predict' => $daily_predict,
+                    'weekly_predict' => $weekly_predict,
+                    'monthly_actual' => $monthly_actual,
+                ]);
+            }
+
 
         } catch (\Exception $e) {
             return response()->json([
@@ -170,6 +192,8 @@ class BookingController
                 'booking.price_original' => 'required|numeric',
                 'booking.price_discount' => 'required|numeric',
                 'booking.price_final' => 'required|numeric',
+                'booking.user_couple_id' => 'nullable|integer',
+                'booking.room_couple_id' => 'nullable|integer',
 
                 'booking_selected' => 'required|array|min:1',
                 'booking_selected.*.service_id' => 'nullable|integer',
@@ -202,6 +226,8 @@ class BookingController
                     'price_original' => $validated['booking']['price_original'],
                     'price_discount' => $validated['booking']['price_discount'],
                     'price_final' => $validated['booking']['price_final'],
+                    'user_couple_id' => $validated['booking']['user_couple_id'] ?? null,
+                    'room_couple_id' => $validated['booking']['room_couple_id'] ?? null,
                 ]);
 
                 // 2. Create booking_selected
@@ -358,6 +384,8 @@ class BookingController
                 'booking.price_original' => 'required|numeric',
                 'booking.price_discount' => 'required|numeric',
                 'booking.price_final' => 'required|numeric',
+                'booking.user_couple_id' => 'nullable|integer',
+                'booking.room_couple_id' => 'nullable|integer',
 
                 // Booking selected
                 'booking_selected' => 'required|array|min:1',
@@ -384,6 +412,8 @@ class BookingController
                     'price_original' => $validated['booking']['price_original'],
                     'price_discount' => $validated['booking']['price_discount'],
                     'price_final' => $validated['booking']['price_final'],
+                    'user_couple_id' => $validated['booking']['user_couple_id'] ?? null,
+                    'room_couple_id' => $validated['booking']['room_couple_id'] ?? null,
                 ]);
 
                 // 2. Update booking_selected

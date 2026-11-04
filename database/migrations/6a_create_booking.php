@@ -29,6 +29,15 @@ return new class extends Migration
             $table->string('remark')->nullable();
             $table->string('recorded_time_start')->nullable();
             $table->string('recorded_time_end')->nullable();
+            
+            $table->foreignId('user_couple_id')->nullable()->constrained('user')->onDelete('cascade');
+            $table->foreignId('room_couple_id')->nullable()->constrained('room')->onDelete('cascade');
+
+            // $table->foreignId('room_id')->nullable()->constrained('room')->onDelete('cascade');
+            // $table->foreignId('therapist_id')->nullable()->constrained('user')->onDelete('cascade');
+            // $table->foreignId('room_couple_id')->nullable()->constrained('room')->onDelete('cascade');
+            // $table->foreignId('therapist_couple_id')->nullable()->constrained('user')->onDelete('cascade');
+
 
             $table->timestamps();
         });

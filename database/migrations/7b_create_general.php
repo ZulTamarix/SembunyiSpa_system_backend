@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('address');
             $table->string('contactNo');
-            $table->string('time_start');
-            $table->string('time_end');
+            $table->integer('bufferTime');
             $table->timestamps();
         });
     }

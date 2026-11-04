@@ -141,8 +141,8 @@ class VoucherController
     // 3) PUT
     public function update(Request $request, string $id)
     {
-        $customer_id = $request->input('customer_id');
         $switch = $request->input('switch');
+        $extra = $request->input('extra');
 
         // 1)
         if($switch == 'voucher'){
@@ -178,24 +178,41 @@ class VoucherController
         }
         // 2) set quantity == 0
         else if($switch == 'customer') {
+            if($extra == 'quantity') {
 
-            // if 1 fail, all fail
-            DB::transaction(function () use ($id) {
+                // if 1 fail, all fail
+                DB::transaction(function () use ($id) {
+                    // check if it exist
+                    $voucher_customer = Voucher_customer::findOrFail($id);
+
+                    // 1. Update voucher_customer
+                    $voucher_customer->update([
+                        'status' => 'redeemed',
+                        'quantity' => 0,
+                    ]);
+
+                    // 2. Add log
+                    Log_voucher::create([
+                        'voucher_customer_id' =>  $id,
+                        'action' => "Redeem the voucher"
+                    ]);
+                });
+            }
+            else if($extra == 'serial_no') {
+                
                 // check if it exist
                 $voucher_customer = Voucher_customer::findOrFail($id);
 
-                // 1. Update user
-                $voucher_customer->update([
-                    'status' => 'redeemed',
-                    'quantity' => 0,
+                // Validate request
+                $validated = $request->validate([
+                    'serial_no'  => 'required|string',
                 ]);
 
-                // 2. Add log
-                Log_voucher::create([
-                    'voucher_customer_id' =>  $id,
-                    'action' => "Redeem the voucher"
+                // Update voucher_customer
+                $voucher_customer->update([
+                    'serial_no' => $validated['serial_no'], 
                 ]);
-            });
+            }
         }
     }
 

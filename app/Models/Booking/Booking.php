@@ -4,6 +4,7 @@ namespace App\Models\Booking;
 
 use App\Models\Log\Log_booking;
 use App\Models\Package\Package;
+use App\Models\Room;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 
@@ -28,6 +29,9 @@ class Booking extends Model
         'booking_type',
         'remark',
 
+        'user_couple_id',
+        'room_couple_id',
+
         'recorded_time_start',
         'recorded_time_end'
     ];
@@ -51,5 +55,14 @@ class Booking extends Model
     public function log() // for therapist
     {
         return $this->hasMany(Log_booking::class, 'booking_id', 'id');
+    }
+
+    function user_couple()
+    {
+        return $this->belongsTo(User::class, 'user_couple_id', 'id');
+    }
+    function room_couple()
+    {
+        return $this->belongsTo(Room::class, 'room_couple_id', 'id');
     }
 }
