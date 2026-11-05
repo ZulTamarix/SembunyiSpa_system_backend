@@ -266,7 +266,7 @@ class MobileController
         }
 
         // 6) get booking for specific customer
-        public function getBooking(string $user_id)
+        public function getBooking_customer(string $user_id)
         {
             try {
 
@@ -479,44 +479,154 @@ class MobileController
                 ], 500);
             }
         }
-    #enregion
+    #endregion
 
-    #region 2) --> PUT
+
+    #region 3) --> PUT
         public function updateUser(Request $request, string $id)
         {
             try {
                 $user = User::findOrFail($id);
 
                 $validated = $request->validate([
-                    'name'  => 'required|string',
-                    'email'  => 'required|string',
-                    'phoneNo'  => 'required|string',
-                    'password'  => 'nullable|string',
-                    'date_birthday' => 'nullable|string',
+                    'name'          => 'sometimes|nullable|string',
+                    'email'         => 'sometimes|nullable|string',
+                    'phoneNo'       => 'sometimes|nullable|string',
+                    'password'      => 'sometimes|nullable|string',
+                    'date_birthday' => 'sometimes|nullable|string',
                 ]);
 
-                $user->update([
-                    'name' => $validated['name'],
-                    'email' => $validated['email'],
-                    'phoneNo' => $validated['phoneNo'],
-                    'date_birthday' => $validated['date_birthday'],
-                    ...(!empty($validated['password']) ? [
-                        'password' => Hash::make($validated['password'])
-                    ] : []),
-                ]);
+                // Remove null values
+                $validated = array_filter($validated, fn($value) => $value !== null);
+
+                // Hash password
+                if (!empty($validated['password'])) {
+                    $validated['password'] = Hash::make($validated['password']);
+                }
+
+                $user->update($validated);
 
                 return response()->json([
                     'status' => true,
                     'message' => 'User updated successfully',
+                    'data' => $user->only(
+                        'name',
+                        'email',
+                        'phoneNo',
+                        'date_birthday'
+                    ),
                 ], 200);
 
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 return response()->json([
                     'status' => false,
                     'message' => $e->getMessage(),
                 ], 500);
             }
         }
-    #enregion
+    #endregion
 
+
+    #region 4) --> therapist
+    
+        // 1) get roster
+        public function getRoster(string $id, Request $request)
+        {
+            try {
+                $year = $request->query('year', now()->year);
+                $month = $request->query('month', now()->month);
+
+                $data = Roster::with([
+                        'shift', 
+                        'leave', 
+                        'adjustment', 
+                    ])
+                    ->where('user_id', $id)
+                    ->whereYear('date', $year)
+                    ->whereMonth('date', $month)
+                    ->get()
+                    ->map(function ($roster) {
+                        return [ 
+                            ...$roster->only(
+                                'id',
+                                'date',
+                                'adjustment',
+                            ),
+                            'shift' => $roster->shift ? [
+                                'icon' => $roster->shift->icon,
+                                'time_start' => $roster->shift->time_start,
+                                'time_end' => $roster->shift->time_end,
+                            ] : null,
+                            'leave' => $roster->leave ? [
+                                'icon' => $roster->leave->icon,
+                                'description' => $roster->leave->description,
+                            ] : null,
+                            'adjustment' => $roster->adjustment->map(function ($adjustment) {
+                                return [
+                                    'type' => $adjustment->type,
+                                    'time_start' => $adjustment->time_start,
+                                    'time_end' => $adjustment->time_end,
+                                    'reason' => $adjustment->reason,
+                                ];
+                            })
+                        ];
+                    });
+
+
+                return response()->json([
+                    'status' => true,
+                    "data" => $data
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        } 
+        // 2) get booking
+        public function getBooking_therapist(string $id, Request $request)
+        {
+            try {
+                $currentDate = $request->input('date');
+
+                $data = Booking_selected::where('user_id', $id)
+                    ->whereHas('booking', function ($query) use ($currentDate) {
+                        $query->whereDate('date_start', $currentDate);
+                    })
+                    ->get()
+                    ->unique('booking_id')
+                    ->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'time_start' => $item->booking->time_start,
+                            'time_end' => $item->booking->time_end,
+                            'status' => $item->booking->status,
+                            'payment' => $item->booking->payment,
+                            'price_original' => $item->booking->price_original,
+                            'price_discount' => $item->booking->price_discount,
+                            'price_final' => $item->booking->price_final,
+
+                            'treatment' =>  $item->booking->package->title ??
+                                            $item->package->title,
+
+                            'customer_name' => $item->booking->user->name,
+                            'customer_phoneNo' => $item->booking->user->phoneNo,
+                        ];
+                    });
+
+                return response()->json([
+                    'status' => true,
+                    'data' => $data
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        }     
+    // #endregion
 }
