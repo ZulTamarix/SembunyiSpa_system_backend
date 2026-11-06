@@ -17,6 +17,7 @@ use App\Models\Booking\Booking;
 use App\Models\Booking\Booking_selected;
 use App\Models\Log\Log_booking;
 use App\Models\Log\Log_voucher;
+use Illuminate\Support\Facades\Log;
 
 class MobileController
 {

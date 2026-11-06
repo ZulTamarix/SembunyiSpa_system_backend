@@ -13,6 +13,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MobileController;
+use App\Http\Controllers\ReportController;
 
 // public
     Route::apiResource('login', AuthController::class);
@@ -36,6 +37,7 @@ use App\Http\Controllers\MobileController;
         Route::apiResource('notification', NotificationController::class);
         Route::apiResource('banner', BannerController::class);
         Route::apiResource('package', PackageController::class);
+        Route::apiResource('report', ReportController::class);
         Route::get('/available/therapist', [BookingController::class, 'getTherapist']); // get total booking
 
 
