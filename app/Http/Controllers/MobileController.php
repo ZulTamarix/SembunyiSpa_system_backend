@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Banner;
 use App\Models\Room;
 use App\Models\Membership;
+use App\Models\Notification;
 use App\Models\Roster\Roster;
 use App\Models\Voucher\Voucher_customer;
 use App\Models\Package\Package;
@@ -75,6 +76,7 @@ class MobileController
                                 'quantity',
                                 'serial_no',
                             ),
+                            'type' =>  $voucher_customer->voucher->type,
                             'code' =>  $voucher_customer->voucher->code,
                             'description' => $voucher_customer->voucher->description,
                             'log' => $voucher_customer->log->map(function ($log) {
@@ -267,6 +269,31 @@ class MobileController
         }
 
         // 6) get booking for specific customer
+        public function getNotification(string $user_id)
+        {
+            try {
+
+                $data = Notification::where('user_id',$user_id)->get();
+                return response()->json([
+                    'status' => true,
+                    'data' => $data->map(function ($data) {
+                                return [
+                                    'title' => $data->title,
+                                    'description' => $data->description,
+                                    'date' => $data->created_at->format('Y-m-d'),
+                                    'time' => $data->created_at->format('H:i'),
+                                ];
+                            })
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        }
+        // 7) get booking for specific customer
         public function getBooking_customer(string $user_id)
         {
             try {
@@ -354,6 +381,7 @@ class MobileController
                     'booking_selected.*.user_id' => 'nullable|integer',
                 ]);
 
+                // if 1 fail, all fail
                 DB::transaction(function () use (
                     $validated,
                     $customer_name,
@@ -430,6 +458,13 @@ class MobileController
                                 : "Use by <strong style='color: green'>{$customer_name}</strong> for <strong style='color: green'>{$package_name}</strong> treatment",
                         ]);
                     }
+
+                    // 5). Create notification
+                    Notification::create([
+                        'user_id'     => $validated['booking']['user_id'],
+                        'title'       => 'Treatment Requested',
+                        'description' => 'Your treatment request has been sent successfully.',
+                    ]);
                 });
 
                 return response()->json([
@@ -470,7 +505,12 @@ class MobileController
                 return response()->json([
                     'status' => true,
                     'message' => 'User created successfully',
-                    'id' => $user->id,
+                    'data' => $user->only(
+                        'name',
+                        'email',
+                        'phoneNo',
+                        'date_birthday'
+                    ),
                 ], 201);
 
             } catch (\Throwable $e) {
@@ -526,9 +566,102 @@ class MobileController
             }
         }
     #endregion
+    
+    #region 5) --> DELETE
+        public function deleteUser_withID(string $id, Request $request)
+        {
+            try {
+                $user = User::findOrFail($id);
+
+                // 1. Validate email and password
+                if ($user->email !== $request->email) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Email does not match.'
+                    ], 401);
+                }
+
+                // 2. Check password against hashed password in database
+                if (!Hash::check($request->password, $user->password)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Incorrect password.'
+                    ], 401);
+                }
+
+                // 3. Delete user
+                $user->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'User deleted successfully.',
+                    'data' => $user->only(
+                        'name',
+                        'email',
+                        'phoneNo',
+                        'date_birthday'
+                    ),
+                ]);
 
 
-    #region 4) --> therapist
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        }
+        public function deleteUser_withoutID(Request $request)
+        {
+            try {
+
+                // 1. Find user using email
+                $user = User::where('email', $request->email)->first();
+
+                if (!$user) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'User not found.'
+                    ], 404);
+                }
+
+                // 2. Check password
+                if (!Hash::check($request->password, $user->password)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Incorrect password.'
+                    ], 401);
+                }
+
+                // 3. Delete user
+                $userData = $user->only(
+                    'name',
+                    'email',
+                    'phoneNo',
+                    'date_birthday'
+                );
+
+                $user->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'User deleted successfully.',
+                    'data' => $userData,
+                ]);
+
+            } catch (\Exception $e) {
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+
+            }
+        }
+    #endregion
+
+
+    #region 5) --> therapist
     
         // 1) get roster
         public function getRoster(string $id, Request $request)
@@ -541,6 +674,12 @@ class MobileController
                         'shift', 
                         'leave', 
                         'adjustment', 
+                        'booking_selected' => function ($query) use ($year, $month) {
+                            $query->whereHas('booking', function ($booking) use ($year, $month) {
+                                $booking->whereYear('date_start', $year)
+                                        ->whereMonth('date_start', $month);
+                            })->with('booking');
+                        },
                     ])
                     ->where('user_id', $id)
                     ->whereYear('date', $year)
@@ -569,7 +708,21 @@ class MobileController
                                     'time_end' => $adjustment->time_end,
                                     'reason' => $adjustment->reason,
                                 ];
-                            })
+                            }),
+                            // 'treatment' => $roster->booking_selected
+                            //     ->filter(function ($booking_selected) use ($roster) {
+                            //         return $booking_selected->booking &&
+                            //             \Carbon\Carbon::parse($booking_selected->booking->date_start)->format('Y-m-d')
+                            //             === \Carbon\Carbon::parse($roster->date)->format('Y-m-d');
+                            //     })
+                            //     ->unique('booking_id') // Keep only the first record with the same booking_id
+                            //     ->map(function ($booking_selected) {
+                            //         return [
+                            //             'title' =>  $booking_selected->booking->package->title ?? 
+                            //                         $booking_selected->package->title,
+                            //         ];
+                            //     })
+                            //     ->values(),
                         ];
                     });
 
@@ -591,16 +744,22 @@ class MobileController
         {
             try {
                 $currentDate = $request->input('date');
+                $month = $request->query('month', now()->month);
 
                 $data = Booking_selected::where('user_id', $id)
-                    ->whereHas('booking', function ($query) use ($currentDate) {
-                        $query->whereDate('date_start', $currentDate);
+                    ->whereHas('booking', function ($query) use ($currentDate, $month) {
+                        if ($currentDate) 
+                            $query->whereDate('date_start', $currentDate);
+                        else if ($month) 
+                            $query->whereMonth('date_start', $month);
                     })
+
                     ->get()
                     ->unique('booking_id')
                     ->map(function ($item) {
                         return [
                             'id' => $item->id,
+                            'date' => $item->booking->date_start,
                             'time_start' => $item->booking->time_start,
                             'time_end' => $item->booking->time_end,
                             'status' => $item->booking->status,
@@ -612,13 +771,17 @@ class MobileController
                             'treatment' =>  $item->booking->package->title ??
                                             $item->package->title,
 
-                            'customer_name' => $item->booking->user->name,
-                            'customer_phoneNo' => $item->booking->user->phoneNo,
+                            'customer_name' =>  $item->booking->user->name ??
+                                                'DELETED USER',
+                            'customer_phoneNo' => $item->booking->user->phoneNo ??
+                                                'DELETED USER',
                         ];
-                    });
+                    })
+                    ->values(); // Reset collection keys
 
                 return response()->json([
                     'status' => true,
+                    'type' => $currentDate? 'date' : 'month',
                     'data' => $data
                 ]);
 
@@ -629,5 +792,63 @@ class MobileController
                 ], 500);
             }
         }     
+        // 2) get booking(total)
+        public function getTotal_booking(string $id)
+        {
+            try {
+
+                // Daily
+                $daily = now()->startOfDay();
+                $dailyEnd = now()->endOfDay();
+
+                // Weekly
+                $weekly = now()->startOfWeek();
+                $weeklyEnd = now()->endOfWeek();
+
+                // Monthly
+                $monthly = now()->startOfMonth();
+                $monthlyEnd = now()->endOfMonth();
+
+
+                // Function to count unique bookings
+                $countBooking = function ($start, $end, $status = null) use ($id) {
+                    return Booking_selected::where('user_id', $id)
+                        ->whereHas('booking', function ($query) use ($start, $end, $status) {
+
+                            $query->whereBetween('date_start', [$start, $end]);
+
+                            if ($status) {
+                                $query->where('status', $status);
+                            }
+
+                        })
+                        ->distinct('booking_id')
+                        ->count('booking_id');
+                };
+
+
+                // Get total
+                $data = [
+                    'daily' => $countBooking($daily, $dailyEnd),
+                    'weekly' => $countBooking($weekly, $weeklyEnd),
+                    'monthly' => $countBooking($monthly, $monthlyEnd, 'completed'),
+                ];
+
+
+                return response()->json([
+                    'status' => true,
+                    'data' => $data
+                ]);
+
+            } catch (\Exception $e) {
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        }  
+
     // #endregion
+  
 }

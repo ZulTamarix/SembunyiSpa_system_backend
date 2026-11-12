@@ -12,6 +12,7 @@ use App\Models\Voucher\Voucher_customer;
 use App\Models\Log\Log_booking;
 use App\Models\Log\Log_voucher;
 use App\Models\Roster\Roster;
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\Room;
 use Carbon\Carbon;
@@ -47,6 +48,9 @@ class BookingController
                 if ($user_id) {
                     $query->where('user_id', $user_id);
                 }
+                
+                // find date
+                $query->whereBetween('date_start', [$firstDate, $lastDate]);
 
                 $data = $query->get()->map(function ($booking) {
                     return [
@@ -201,6 +205,7 @@ class BookingController
                 'booking_selected.*.user_id' => 'nullable|integer',
             ]);
 
+            // if 1 fail, all fail
             DB::transaction(function () use (
                 $validated,
                 $role,
@@ -281,6 +286,13 @@ class BookingController
                             : "Use by <strong style='color: green'>{$customer_name}</strong> for <strong style='color: green'>{$package_name}</strong> treatment",
                     ]);
                 }
+
+                // 5). Create notification
+                Notification::create([
+                    'user_id'     => $validated['booking']['user_id'],
+                    'title'       => 'Booked treatment',
+                    'description' => 'Your treatment has been successfully booked',
+                ]);
             });
 
             return response()->json([

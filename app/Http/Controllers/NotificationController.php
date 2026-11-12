@@ -18,8 +18,14 @@ class NotificationController
         $notifications = Notification::with('user:id,role')
             ->orderBy('id')
             ->get()
-            ->unique(function ($notification) {
-                return $notification->created_at . '|' . $notification->title;
+            ->groupBy(function ($notification) {
+                return $notification->created_at->format('Y-m-d') . '|' . $notification->title;
+            })
+            ->filter(function ($notifications) {
+                return $notifications->count() > 1;
+            })
+            ->map(function ($notifications) {
+                return $notifications->first();
             })
             ->values();
 

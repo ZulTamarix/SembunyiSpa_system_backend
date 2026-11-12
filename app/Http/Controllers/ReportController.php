@@ -31,8 +31,8 @@ class ReportController
 
                                 return [
                                     'id' => $booking->id,
-                                    'name' => $booking->user->name,
-                                    'phoneNo' => $booking->user->phoneNo,
+                                    'name' => $booking->user->name ?? 'DELETED USER',
+                                    'phoneNo' => $booking->user->phoneNo ?? 'DELETED USER',
                                     'price' => $bookings->sum('price_final'),
                                     'total' => $bookings->count()
                                 ];

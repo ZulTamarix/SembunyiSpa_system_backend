@@ -49,14 +49,20 @@ use App\Http\Controllers\ReportController;
             Route::get('/mobile/membership/{membership_id}', [MobileController::class, 'getMembership']); // get membership for customer
             Route::get('/mobile/voucher/{user_id}', [MobileController::class, 'getVoucher']); // get voucher for customer
             Route::get('/mobile/booking/{user_id}', [MobileController::class, 'getBooking_customer']); // get booking for customer
+            Route::get('/mobile/booking/{user_id}', [MobileController::class, 'getBooking_customer']); // get booking for customer
+            Route::get('/mobile/notification/{user_id}', [MobileController::class, 'getNotification']); // get  notification for customer
             
             Route::post('/mobile/booking', [MobileController::class, 'createBooking']); // create booking for customer
-            
             Route::put('/mobile/customer/{id}', [MobileController::class, 'updateUser']); // create user for customer
+            Route::post('/mobile/customer/delete/{id}', [MobileController::class, 'deleteUser_withID']); // create user for customer
+            Route::post('/mobile/customer/delete', [MobileController::class, 'deleteUser_withoutID']); // create user for customer
 
             // b) therapist
             Route::get('/mobile/therapist/roster/{id}', [MobileController::class, 'getRoster']); // get roster for therapist
             Route::get('/mobile/therapist/booking/{id}', [MobileController::class, 'getBooking_therapist']); // get booking for therapist
+            Route::get('/mobile/therapist/totalBooking/{id}', [MobileController::class, 'getTotal_booking']); // get total booking for therapist
+
+            Route::get('/mobile/testing', [MobileController::class, 'testing']); // get total booking for therapist
 
         #endregion
     });
