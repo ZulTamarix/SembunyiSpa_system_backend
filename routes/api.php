@@ -20,6 +20,7 @@ use App\Http\Controllers\ReportController;
     Route::get('/mobile/banner', [MobileController::class, 'getBanner']); // get banner
     Route::get('/mobile/treatment', [MobileController::class, 'getTreatment']); // get treatment list
     Route::post('/mobile/customer', [MobileController::class, 'createUser']); // create user for customer
+    Route::post('/mobile/customer/delete', [MobileController::class, 'deleteUser_withoutID']); // create user for customer
     
 // protected
     Route::middleware('auth:sanctum')->group(function () {
@@ -55,7 +56,6 @@ use App\Http\Controllers\ReportController;
             Route::post('/mobile/booking', [MobileController::class, 'createBooking']); // create booking for customer
             Route::put('/mobile/customer/{id}', [MobileController::class, 'updateUser']); // create user for customer
             Route::post('/mobile/customer/delete/{id}', [MobileController::class, 'deleteUser_withID']); // create user for customer
-            Route::post('/mobile/customer/delete', [MobileController::class, 'deleteUser_withoutID']); // create user for customer
 
             // b) therapist
             Route::get('/mobile/therapist/roster/{id}', [MobileController::class, 'getRoster']); // get roster for therapist

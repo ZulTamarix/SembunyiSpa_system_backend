@@ -216,49 +216,79 @@ class MobileController
                 $date = $request->date;
                 $time_start = $request->time_start;
                 $time_end = $request->time_end;
+                $treatment_id = $request->treatment_id;
 
-                $therapist_list = $request->therapist_list;
-                $room_list = $request->room_list;
+                // search for therapist and room id first
+                $package = Package::with(
+                    'package_therapist',
+                    'package_room',
+                    'package_service.service.package_therapist',
+                    'package_service.service.package_room'
+                )->find($treatment_id);
 
-                $available_therapist = Roster::with([
-                        'shift',
-                        'booking_selected.booking'
-                    ])
-                    ->whereDate('date', $date)
-                    ->whereIn('user_id', $therapist_list)
-                    ->whereNotNull('roster_shift_id')
-                    ->whereNull('roster_leave_id')
-                    ->whereHas('shift', function ($query) use ($time_start, $time_end) {
-                        $query->where('time_start', '<=', $time_start)
-                            ->where('time_end', '>=', $time_end);
-                    })
-                    ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
-                        $query->whereDate('date_start', $date)
-                            ->where('time_start', '<', $time_end)
-                            ->where('time_end', '>', $time_start);
-                    })
-                    ->get()
-                    ->pluck('user');
+                // a) therapist
+                $therapist_list = $package->package_service->isNotEmpty()
+                    ? $package->package_service
+                        ->flatMap(fn($item) => $item->service?->package_therapist ?? [])
+                        ->pluck('user_id')
+                        ->unique()
+                        ->values()
+                        ->toArray()
+                    : ($package->package_therapist?->pluck('user_id')->toArray() ?? []);
 
-                $available_room = Room::whereIn('id', $room_list)
-                    ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
-                        $query->whereDate('date_start', $date)
-                            ->where('time_start', '<', $time_end)
-                            ->where('time_end', '>', $time_start);
-                    })
-                    ->get();
+                // b) room
+                $room_list = $package->package_service->isNotEmpty()
+                    ? $package->package_service
+                        ->flatMap(fn($item) => $item->service?->package_room ?? [])
+                        ->pluck('room_id')
+                        ->unique()
+                        ->values()
+                        ->toArray()
+                    : ($package->package_room?->pluck('room_id')->toArray() ?? []);
+                    
+                return [
+                    'therapist' => $therapist_list,
+                    'room' => $room_list
+                ];
+                // $available_therapist = Roster::with([
+                //         'shift',
+                //         'booking_selected.booking'
+                //     ])
+                //     ->whereDate('date', $date)
+                //     ->whereIn('user_id', $therapist_list)
+                //     ->whereNotNull('roster_shift_id')
+                //     ->whereNull('roster_leave_id')
+                //     ->whereHas('shift', function ($query) use ($time_start, $time_end) {
+                //         $query->where('time_start', '<=', $time_start)
+                //             ->where('time_end', '>=', $time_end);
+                //     })
+                //     ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
+                //         $query->whereDate('date_start', $date)
+                //             ->where('time_start', '<', $time_end)
+                //             ->where('time_end', '>', $time_start);
+                //     })
+                //     ->get()
+                //     ->pluck('user');
 
-                if ($available_therapist->count() > 0 && $available_room->count() > 0) {
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Booking can be made for the selected time'
-                    ]);
-                }
+                // $available_room = Room::whereIn('id', $room_list)
+                //     ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
+                //         $query->whereDate('date_start', $date)
+                //             ->where('time_start', '<', $time_end)
+                //             ->where('time_end', '>', $time_start);
+                //     })
+                //     ->get();
 
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Booking cannot be made for the selected time'
-                ]);
+                // if ($available_therapist->count() > 0 && $available_room->count() > 0) {
+                //     return response()->json([
+                //         'status' => true,
+                //         'message' => 'Booking can be made for the selected time'
+                //     ]);
+                // }
+
+                // return response()->json([
+                //     'status' => false,
+                //     'message' => 'Booking cannot be made for the selected time'
+                // ]);
 
             } catch (\Exception $e) {
                 return response()->json([
@@ -614,6 +644,7 @@ class MobileController
         public function deleteUser_withoutID(Request $request)
         {
             try {
+                Log::info($request);
 
                 // 1. Find user using email
                 $user = User::where('email', $request->email)->first();

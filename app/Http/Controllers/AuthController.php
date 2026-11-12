@@ -72,7 +72,7 @@ class AuthController
                     'message' => 'Login successful',
                     'token' => $token,
                     'user' => $user,
-                    'token_device' => $user_token
+                    'token_device' => $user_token->token
                 ]);
             });
 
