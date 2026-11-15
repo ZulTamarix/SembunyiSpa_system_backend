@@ -77,28 +77,28 @@ class UserController
             'name'  => 'required|string',
             'email'  => 'required|string',
             'phoneNo'  => 'required|string',
-            'password'  => 'nullable|string',
-            'specialty'  => 'nullable|string',
-            'code'      => 'nullable|string',
-            'date_birthday' => 'nullable|string',
+            'password'  => 'sometimes|nullable|string',
+            'specialty'  => 'sometimes|nullable|string',
+            'code'      => 'sometimes|nullable|string',
+            'date_birthday' => 'sometimes|nullable|string',
         ]);
 
-        $user = User::Create(
-            [ 
-                'email' => $validated['email'],
-                'phoneNo' => $validated['phoneNo'],
-                'role' => $validated['role'],
-                'name' => $validated['name'],
-                'password' => Hash::make($validated['password']),
-                'status' => 'active',
-                'date_birthday' => $validated['date_birthday'],
+        $user = User::Create([
+            'email' => $validated['email'],
+            'phoneNo' => $validated['phoneNo'],
+            'role' => $validated['role'],
+            'name' => $validated['name'],
+            'password' => isset($validated['password'])
+                ? Hash::make($validated['password'])
+                : null,
+            'status' => 'active',
+            'date_birthday' => $validated['date_birthday'] ?? null,
 
-                ...($validated['role'] == 'therapist' ? [
-                    'code'  => $validated['code'],
-                    'specialty' => $validated['specialty']
-                ] : [])
-            ]
-        );
+            ...($validated['role'] == 'therapist' ? [
+                'code' => $validated['code'] ?? null,
+                'specialty' => $validated['specialty'] ?? null
+            ] : [])
+        ]);
 
         // optional to catch
         return response()->json([

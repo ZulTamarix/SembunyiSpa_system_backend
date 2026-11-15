@@ -246,49 +246,45 @@ class MobileController
                         ->toArray()
                     : ($package->package_room?->pluck('room_id')->toArray() ?? []);
                     
-                return [
-                    'therapist' => $therapist_list,
-                    'room' => $room_list
-                ];
-                // $available_therapist = Roster::with([
-                //         'shift',
-                //         'booking_selected.booking'
-                //     ])
-                //     ->whereDate('date', $date)
-                //     ->whereIn('user_id', $therapist_list)
-                //     ->whereNotNull('roster_shift_id')
-                //     ->whereNull('roster_leave_id')
-                //     ->whereHas('shift', function ($query) use ($time_start, $time_end) {
-                //         $query->where('time_start', '<=', $time_start)
-                //             ->where('time_end', '>=', $time_end);
-                //     })
-                //     ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
-                //         $query->whereDate('date_start', $date)
-                //             ->where('time_start', '<', $time_end)
-                //             ->where('time_end', '>', $time_start);
-                //     })
-                //     ->get()
-                //     ->pluck('user');
+                $available_therapist = Roster::with([
+                        'shift',
+                        'booking_selected.booking'
+                    ])
+                    ->whereDate('date', $date)
+                    ->whereIn('user_id', $therapist_list)
+                    ->whereNotNull('roster_shift_id')
+                    ->whereNull('roster_leave_id')
+                    ->whereHas('shift', function ($query) use ($time_start, $time_end) {
+                        $query->where('time_start', '<=', $time_start)
+                            ->where('time_end', '>=', $time_end);
+                    })
+                    ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
+                        $query->whereDate('date_start', $date)
+                            ->where('time_start', '<', $time_end)
+                            ->where('time_end', '>', $time_start);
+                    })
+                    ->get()
+                    ->pluck('user');
 
-                // $available_room = Room::whereIn('id', $room_list)
-                //     ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
-                //         $query->whereDate('date_start', $date)
-                //             ->where('time_start', '<', $time_end)
-                //             ->where('time_end', '>', $time_start);
-                //     })
-                //     ->get();
+                $available_room = Room::whereIn('id', $room_list)
+                    ->whereDoesntHave('booking_selected.booking', function ($query) use ($date, $time_start, $time_end) {
+                        $query->whereDate('date_start', $date)
+                            ->where('time_start', '<', $time_end)
+                            ->where('time_end', '>', $time_start);
+                    })
+                    ->get();
 
-                // if ($available_therapist->count() > 0 && $available_room->count() > 0) {
-                //     return response()->json([
-                //         'status' => true,
-                //         'message' => 'Booking can be made for the selected time'
-                //     ]);
-                // }
+                if ($available_therapist->count() > 0 && $available_room->count() > 0) {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Booking can be made for the selected time'
+                    ]);
+                }
 
-                // return response()->json([
-                //     'status' => false,
-                //     'message' => 'Booking cannot be made for the selected time'
-                // ]);
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Booking cannot be made for the selected time'
+                ]);
 
             } catch (\Exception $e) {
                 return response()->json([
@@ -386,116 +382,143 @@ class MobileController
         {
             
             try {
-                $customer_name = $request->input('customer_name');
-                $customer_shared_name = $request->input('customer_shared_name');
-                $package_name = $request->input('package_name');
-                $voucher_customer_price_id = $request->input('voucher_customer_price_id');
-                $voucher_customer_duration_id = $request->input('voucher_customer_duration_id');
 
-                $validated = $request->validate([
-                    'booking.package_id' => 'nullable|integer',
-
-                    'booking.user_id' => 'required|integer',
-                    'booking.user_shared_id' => 'nullable|integer',
-                    'booking.date_start' => 'required|date',
-                    'booking.time_start' => 'required|date_format:H:i',
-                    'booking.time_end' => 'required|date_format:H:i|after:booking.time_start',
-                    'booking.price_original' => 'required|numeric',
-                    'booking.price_discount' => 'required|numeric',
-                    'booking.price_final' => 'required|numeric',
-                    'booking.remark' => 'nullable|string',
-
-                    'booking_selected' => 'required|array|min:1',
-                    'booking_selected.*.service_id' => 'nullable|integer',
-                    'booking_selected.*.room_id' => 'nullable|integer',
-                    'booking_selected.*.user_id' => 'nullable|integer',
-                ]);
-
-                // if 1 fail, all fail
-                DB::transaction(function () use (
-                    $validated,
-                    $customer_name,
-                    $customer_shared_name,
-                    $package_name,
-                    $voucher_customer_price_id,
-                    $voucher_customer_duration_id
-                ) {
-
-                    // 1. Create booking
-                    $booking = Booking::create([
-                        'package_id' => $validated['booking']['package_id'] ?? null,
-                        'user_id' => $validated['booking']['user_id'],
-                        'user_shared_id' => $validated['booking']['user_shared_id'] ?? null,
-                        'date_start' => $validated['booking']['date_start'],
-                        'time_start' => $validated['booking']['time_start'],
-                        'time_end' => $validated['booking']['time_end'],
-                        'status' => 'pending',
-                        'payment' => 'pending',
-                        'booking_type' => 'online',
-                        'remark' => $validated['booking']['remark'] ?? null,
-                        'price_original' => $validated['booking']['price_original'],
-                        'price_discount' => $validated['booking']['price_discount'],
-                        'price_final' => $validated['booking']['price_final'],
-                    ]);
-
-                    // 2. Create booking_selected
-                    foreach ($validated['booking_selected'] as $selected) {
-                        Booking_selected::create([
-                            'booking_id' => $booking->id,
-                            'package_id' => $selected['service_id'],
-                            'room_id' => null,
-                            'user_id' => null,
-                        ]);
+                // a) fetch 'service_id'
+                    $treatment_id = $request->input('treatment_id');
+                    $package = Package::with('package_service')
+                                        ->where('id', $treatment_id)
+                                        ->first();
+                            
+                    $service_ids = $package->package_service->pluck('service_id')->toArray();
+                    
+                    // a) type == 'service'
+                    if (empty($service_ids)) {
+                        $package_id = null;
+                        $service_ids = [(int) $treatment_id];
                     }
+                    // b) type == 'package'
+                    else {
+                        $package_id = $treatment_id;
+                    }
+                 
+                    $booking_selected = collect($service_ids)->map(function ($service_id) {
+                        return [
+                            'id' => 0,
+                            'booking_id' => 0,
+                            'service_id' => (int) $service_id,
+                            'room_id' => 0,
+                            'user_id' => 0,
+                        ];
+                    })->values()->toArray();
 
-                    // 3. Create booking log
-                    Log_booking::create([
-                        'booking_id' => $booking->id,
-                        'action' => $customer_shared_name
-                            ? "&bull; Booked a treatment for <strong style='color: green'>{$customer_shared_name}</strong><br/>"
-                            . "&bull; Shared by <strong style='color: green'>{$customer_name}</strong>"
-                            : "Booked a treatment for <strong style='color: green'>{$customer_name}</strong>",
+                // b) get treatment's title
+                    $title = $package->title;
+
+                // c) get user's name
+                    $user_id = $request->input('user_id');
+                    $user = User::find($user_id);
+                    $customer_name = $user->name;
+
+                // d) fetch data from frontend
+                    $validated = $request->validate([
+                        'user_id' => 'required|integer',
+
+                        'date_start' => 'required|date',
+                        'time_start' => 'required|date_format:H:i',
+                        'time_end' => 'required|date_format:H:i|after:time_start',
+                        'price_original' => 'required|numeric',
+                        'price_discount' => 'required|numeric',
+                        'price_final' => 'required|numeric',
+                        'remark' => 'nullable|string',
+
+                        'voucher_price_id' => 'sometimes|nullable|integer',
+                        'voucher_duration_id' => 'sometimes|nullable|integer',
                     ]);
+                
+                // e) create
+                    // if 1 fail, all fail
+                    DB::transaction(function () use (
+                        $validated,
+                        $package_id,
+                        $title,
+                        $booking_selected,
+                        $customer_name,
+                    ) {
 
-                    // 4. Deduct vouchers
-                    foreach ([$voucher_customer_price_id, $voucher_customer_duration_id] as $voucher_id) {
+                        // 1. Create booking
+                        $booking = Booking::create([
+                            'package_id' => $package_id,
+                            'user_id' => $validated['user_id'],
+                            'user_shared_id' => $validated['user_shared_id'] ?? null,
+                            'date_start' => $validated['date_start'],
+                            'time_start' => $validated['time_start'],
+                            'time_end' => $validated['time_end'],
+                            'status' => 'pending',
+                            'payment' => 'pending',
+                            'booking_type' => 'online',
+                            'remark' => $validated['remark'] ?? null,
+                            'price_original' => $validated['price_original'],
+                            'price_discount' => $validated['price_discount'],
+                            'price_final' => $validated['price_final'],
+                        ]);
 
-                        if ($voucher_id === 'blank') {
-                            continue;
-                        }
-
-                        $voucher_customer = Voucher_customer::find((int) $voucher_id);
-
-                        if (!$voucher_customer) {
-                            continue;
-                        }
-
-                        if ($voucher_customer->quantity !== 0 && $voucher_customer->quantity !== null) {
-                            $voucher_customer->decrement('quantity', 1);
-                        }
-                        
-                        if ($voucher_customer->quantity === 0) {
-                            $voucher_customer->update([
-                                'status' => 'redeemed'
+                        // 2. Create booking_selected
+                        foreach ($booking_selected as $selected) {
+                            Booking_selected::create([
+                                'booking_id' => $booking->id,
+                                'package_id' => $selected['service_id'],
+                                'room_id' => null,
+                                'user_id' => null,
                             ]);
                         }
 
-                        Log_voucher::create([
-                            'voucher_customer_id' => $voucher_customer->id,
-                            'action' => $customer_shared_name
-                                ? "&bull; Use by <strong style='color: green'>{$customer_shared_name}</strong> for <strong style='color: green'>{$package_name}</strong> treatment<br/>"
-                                . "&bull; Shared by <strong style='color: green'>{$customer_name}</strong>"
-                                : "Use by <strong style='color: green'>{$customer_name}</strong> for <strong style='color: green'>{$package_name}</strong> treatment",
+                        // 3. Create booking log
+                        Log_booking::create([
+                            'booking_id' => $booking->id,
+                            'action' => "Booked a treatment for <strong style='color: green'>{$customer_name}</strong>",
                         ]);
-                    }
 
-                    // 5). Create notification
-                    Notification::create([
-                        'user_id'     => $validated['booking']['user_id'],
-                        'title'       => 'Treatment Requested',
-                        'description' => 'Your treatment request has been sent successfully.',
-                    ]);
-                });
+                        // 4. Deduct vouchers
+                        foreach (['voucher_price_id', 'voucher_duration_id'] as $voucher_field) {
+
+                            // a. Skip if not sent or null
+                            if (empty($validated[$voucher_field])) {
+                                continue;
+                            }
+
+                            // b. Find voucher
+                            $voucher_customer = Voucher_customer::find($validated[$voucher_field]);
+
+                            if (!$voucher_customer) {
+                                continue;
+                            }
+
+                            // c. Deduct quantity
+                            if ($voucher_customer->quantity !== 0 && $voucher_customer->quantity !== null) {
+                                $voucher_customer->decrement('quantity', 1);
+                            }
+
+                            // d. Update status
+                            if ($voucher_customer->quantity === 0) {
+                                $voucher_customer->update([
+                                    'status' => 'redeemed'
+                                ]);
+                            }
+
+                            // e. Create voucher log
+                            Log_voucher::create([
+                                'voucher_customer_id' => $voucher_customer->id,
+                                'action' => "Use by <strong style='color: green'>{$customer_name}</strong> for <strong style='color: green'>{$title}</strong> treatment",
+                            ]);
+                        }
+
+                        // 5). Create notification
+                        Notification::create([
+                            'user_id'     => $validated['user_id'],
+                            'title'       => 'Treatment Requested',
+                            'description' => 'Your treatment request has been sent successfully.',
+                        ]);
+                    });
 
                 return response()->json([
                     'status' => true,

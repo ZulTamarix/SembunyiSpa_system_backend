@@ -14,6 +14,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MobileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Api\NotificationController as ApiNotificationController;
 
 // public
     Route::apiResource('login', AuthController::class);
@@ -22,25 +23,27 @@ use App\Http\Controllers\ReportController;
     Route::post('/mobile/customer', [MobileController::class, 'createUser']); // create user for customer
     Route::post('/mobile/customer/delete', [MobileController::class, 'deleteUser_withoutID']); // create user for customer
     
+    Route::post('/notification/send', [ApiNotificationController::class, 'sendToUser']);
+
 // protected
     Route::middleware('auth:sanctum')->group(function () {
 
         // authentication
         Route::post('/logout', [AuthController::class, 'logout']);
 
-        // normal
-        Route::apiResource('room', RoomController::class);
-        Route::apiResource('user', UserController::class);
-        Route::apiResource('membership', MembershipController::class);
-        Route::apiResource('roster', RosterController::class);
-        Route::apiResource('voucher', VoucherController::class);
-        Route::apiResource('booking', BookingController::class);
-        Route::apiResource('notification', NotificationController::class);
-        Route::apiResource('banner', BannerController::class);
-        Route::apiResource('package', PackageController::class);
-        Route::apiResource('report', ReportController::class);
-        Route::get('/available/therapist', [BookingController::class, 'getTherapist']); // get total booking
-
+        #region -> for 'website'
+            Route::apiResource('room', RoomController::class);
+            Route::apiResource('user', UserController::class);
+            Route::apiResource('membership', MembershipController::class);
+            Route::apiResource('roster', RosterController::class);
+            Route::apiResource('voucher', VoucherController::class);
+            Route::apiResource('booking', BookingController::class);
+            Route::apiResource('notification', NotificationController::class);
+            Route::apiResource('banner', BannerController::class);
+            Route::apiResource('package', PackageController::class);
+            Route::apiResource('report', ReportController::class);
+            Route::get('/available/therapist', [BookingController::class, 'getTherapist']); // get total booking
+        #endregion
 
         #region -> for 'mobile'
 
@@ -65,4 +68,9 @@ use App\Http\Controllers\ReportController;
             Route::get('/mobile/testing', [MobileController::class, 'testing']); // get total booking for therapist
 
         #endregion
+  
+        #region -> 'notification'
+            // Route::post('/notification/send', [ApiNotificationController::class, 'sendToUser']);
+        #endregion
+        
     });

@@ -407,7 +407,8 @@ class BookingController
                 'booking_selected.*.user_id' => 'nullable|integer',
             ]);
 
-            DB::transaction(function () use ( $validated, $booking ) {
+            $customer_shared_name = $request->input('customer_shared_name');
+            DB::transaction(function () use ( $validated, $booking, $customer_shared_name ) {
 
                 // 1. Update 'booking'
                 $booking->update([
@@ -437,11 +438,25 @@ class BookingController
                             'user_id' => $selected['user_id'] ?? null,
                         ]);
                 }
-                
-                // 3. Update booking log
+
+                // 3a. Create log for 'user_shared' if needed
+                if($validated['booking']['user_shared_id']) {
+                    Log_booking::create([
+                        'booking_id' => $booking->id,
+                        'action' => "Your treatment has been transfer to $customer_shared_name",
+                    ]);
+                }
+                // 3b. Update booking log
                 Log_booking::create([
                     'booking_id' => $booking->id,
                     'action' => "Confirm the booking",
+                ]);
+
+                // 4. Create notification
+                Notification::create([
+                    'user_id'     => $validated['booking']['user_id'],
+                    'title'       => 'Confirmed treatment',
+                    'description' => 'Your treatment has been confirmed',
                 ]);
             });
         }

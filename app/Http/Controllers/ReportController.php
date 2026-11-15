@@ -7,6 +7,8 @@ use Carbon\CarbonPeriod;
 use Carbon\Carbon;
 
 use App\Models\Booking\Booking;
+use App\Models\User;
+use App\Models\Roster\Roster;
 
 class ReportController
 {
@@ -18,160 +20,248 @@ class ReportController
             $date_start = $request->input('date_start');
             $date_end = $request->input('date_end');
 
-            // a) Customer
+            // KIV
+            // // a) Customer 
+            // if ($switch == 'customer') {
+
+            //     $data = Booking::whereBetween('date_start', [$date_start, $date_end])
+            //                 ->where('status', '!=', 'cancelled')
+            //                 ->with('user')
+            //                 ->get()
+            //                 ->groupBy('user_id') // merge if 'user_id' clashed
+            //                 ->map(function ($bookings) {
+            //                     $booking = $bookings->first();
+
+            //                     return [
+            //                         'id' => $booking->id,
+            //                         'name' => $booking->user->name ?? 'DELETED USER',
+            //                         'phoneNo' => $booking->user->phoneNo ?? 'DELETED USER',
+            //                         'price' => $bookings->sum('price_final'),
+            //                         'total' => $bookings->count()
+            //                     ];
+            //                 })
+            //                 ->values();
+            //     return response()->json($data);
+
+            // }
+            // // b) Treatment
+            // else if ($switch == 'treatment') {
+
+            //     $data = Booking::whereBetween('date_start', [$date_start, $date_end])
+            //         ->where('status', '!=', 'cancelled')
+            //         ->with([
+            //             'booking_selected',
+            //             'booking_selected.package',
+            //             'booking_selected.package.package_category',
+            //             'package'
+            //         ])
+            //         ->get()
+            //         ->map(function ($booking) {
+            //             return [
+            //                 'id' => $booking->id,
+                            
+            //                 'treatment_id' => $booking->package?->id
+            //                             ?? $booking->booking_selected?->first()?->package?->id,
+            //                 'treatment' => $booking->package?->title
+            //                             ?? $booking->booking_selected?->first()?->package?->title,
+            //                 'category' => $booking->package?->package_category->name
+            //                             ?? $booking->booking_selected?->first()?->package?->package_category->name
+            //             ];
+            //         })
+            //         ->groupBy('treatment_id')
+            //         ->map(function ($bookings) {
+            //             $booking = $bookings->first();
+
+            //             return [
+            //                 'id' => $booking['id'],
+            //                 'treatment' => $booking['treatment'],
+            //                 'category' => $booking['category'],
+            //                 'total' => $bookings->count()
+            //             ];
+            //         })
+            //         ->values();
+
+            //         return response()->json($data);
+            // }
+            // // c) Room
+            // else if ($switch == 'room') {
+
+            //     $data = Booking::whereBetween('date_start', [$date_start, $date_end])
+            //         ->where('status', '!=', 'cancelled')
+            //         ->with([
+            //             'booking_selected.room',
+            //         ])
+            //         ->get()
+            //         ->map(function ($booking) {
+            //             return [
+            //                 'id' => $booking->id,
+            //                 'room_id' => $booking->booking_selected->first()?->room->id,
+            //                 'room' => $booking->booking_selected->first()?->room->name,
+            //                 'description' => $booking->booking_selected->first()?->room->description
+            //             ];
+            //         })
+            //         ->groupBy('room_id')
+            //         ->map(function ($bookings) {
+            //             $booking = $bookings->first();
+
+            //             return [
+            //                 'id' => $booking['id'],
+            //                 'room' => $booking['room'],
+            //                 'description' => $booking['description'],
+            //                 'total' => $bookings->count()
+            //             ];
+            //         })
+            //         ->values();
+
+            //         return response()->json($data);
+            // }
+            // // d) Therapist
+            // else if ($switch == 'therapist') {
+
+            //     $data = Booking::whereBetween('date_start', [$date_start, $date_end])
+            //         ->where('status', '!=', 'cancelled')
+            //         ->with([
+            //             'booking_selected.user',
+            //         ])
+            //         ->get()
+            //         ->map(function ($booking) {
+            //             return [
+            //                 'id' => $booking->id,
+            //                 'user_id' => $booking->booking_selected->first()?->user->id,
+            //                 'name' => $booking->booking_selected->first()?->user->name,
+            //                 'specialty' => $booking->booking_selected->first()?->user->specialty
+            //             ];
+            //         })
+            //         ->groupBy('user_id')
+            //         ->map(function ($bookings) {
+            //             $booking = $bookings->first();
+
+            //             return [
+            //                 'id' => $booking['id'],
+            //                 'name' => $booking['name'],
+            //                 'specialty' => $booking['specialty'],
+            //                 'total' => $bookings->count()
+            //             ];
+            //         })
+            //         ->values();
+
+            //         return response()->json($data);
+            // }
+            // // e) Revenue (RM)
+            // else if ($switch == 'revenue') {
+
+            //     $bookings = Booking::whereBetween('date_start', [$date_start, $date_end])
+            //                 ->where('status', '!=', 'cancelled')
+            //                 ->get()
+            //                 ->groupBy(function ($booking) {
+            //                     return Carbon::parse($booking->date_start)->format('Y-m-d');
+            //                 });
+
+            //     $data = collect(CarbonPeriod::create($date_start, $date_end))
+            //                 ->map(function ($date, $index) use ($bookings) {
+
+            //                     $date = $date->format('Y-m-d');
+
+            //                     $dailyBookings = $bookings->get($date, collect());
+
+            //                     return [
+            //                         'id' => $index+1,
+            //                         'date' => $date,
+            //                         'price' => $dailyBookings->sum('price_final'),
+            //                     ];
+            //                 })
+            //                 ->values();
+
+            //     return response()->json($data);
+            // }
+
             if ($switch == 'customer') {
 
-                $data = Booking::whereBetween('date_start', [$date_start, $date_end])
-                            ->where('status', '!=', 'cancelled')
-                            ->with('user')
-                            ->get()
-                            ->groupBy('user_id') // merge if 'user_id' clashed
-                            ->map(function ($bookings) {
-                                $booking = $bookings->first();
+                return response()->json(
+                    User::where('role', 'customer')
+                        ->with(
+                                'voucherCustomers', 
+                                'voucherCustomers.voucher', 
+                                'voucherCustomers.log', 
+                                'membership', 
+                                'booking'
+                            )
+                        ->get()
+                    ->map(function ($user) {
 
-                                return [
-                                    'id' => $booking->id,
-                                    'name' => $booking->user->name ?? 'DELETED USER',
-                                    'phoneNo' => $booking->user->phoneNo ?? 'DELETED USER',
-                                    'price' => $bookings->sum('price_final'),
-                                    'total' => $bookings->count()
-                                ];
-                            })
-                            ->values();
-                return response()->json($data);
+                        return [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'phoneNo' => $user->phoneNo,
+                            'email' => $user->email,
+                            'membership' => $user->membership_id? $user->membership->tier : null,
+                            'membership_code' => $user->membership_id? $user->code : null,
+                            'voucher' => $user->voucherCustomers->count() > 0? $user->voucherCustomers->count() : '-',
+                            'booking' => $user->booking->count() > 0? $user->booking->count() : '-',
+                            'date_registration' => $user->created_at->format('d M Y, h:i A'),
+                        ];
+                    })
+                );
 
             }
-            // b) Treatment
-            else if ($switch == 'treatment') {
-
-                $data = Booking::whereBetween('date_start', [$date_start, $date_end])
-                    ->where('status', '!=', 'cancelled')
-                    ->with([
-                        'booking_selected',
-                        'booking_selected.package',
-                        'booking_selected.package.package_category',
-                        'package'
-                    ])
+            else if($switch == 'booking') {
+                
+                $query = Booking::with([
+                    'booking_selected',
+                    'user',
+                    'user_shared',
+                    'package',
+                    'log',
+                    'user_couple',
+                    'room_couple',
+                    'booking_selected.package',
+                    'booking_selected.user',
+                    'booking_selected.room'
+                ]);
+                
+                // find date
+                $query->whereBetween('date_start', [$date_start, $date_end]);
+                $data = $query
                     ->get()
                     ->map(function ($booking) {
                         return [
                             'id' => $booking->id,
-                            
-                            'treatment_id' => $booking->package?->id
-                                        ?? $booking->booking_selected?->first()?->package?->id,
-                            'treatment' => $booking->package?->title
-                                        ?? $booking->booking_selected?->first()?->package?->title,
-                            'category' => $booking->package?->package_category->name
-                                        ?? $booking->booking_selected?->first()?->package?->package_category->name
+                            'date' => $booking->date_start,
+                            'time' => substr($booking->time_start, 0, 5).' - '.substr($booking->time_end, 0, 5),
+                            'customer' => $booking->user?->name? : 'DELETED USER' ,
+                            'treatment' => $booking->package_id? $booking->package->title : $booking->booking_selected->first()?->package->title,
+                            'status' => $booking->status,
+                            'payment' => $booking->payment,
+                            'quotation' => $booking->price_final
                         ];
-                    })
-                    ->groupBy('treatment_id')
-                    ->map(function ($bookings) {
-                        $booking = $bookings->first();
+                    });
 
-                        return [
-                            'id' => $booking['id'],
-                            'treatment' => $booking['treatment'],
-                            'category' => $booking['category'],
-                            'total' => $bookings->count()
-                        ];
-                    })
-                    ->values();
-
-                    return response()->json($data);
+               return response()->json($data);
             }
-            // c) Room
-            else if ($switch == 'room') {
+            else if($switch == 'therapist') {
+                
+                return response()->json(
+                    Roster::with(['shift', 'leave', 'adjustment', 'user'])
+                        ->whereBetween('date', [$date_start, $date_end])
+                        ->get()
+                        ->map(function ($roster) {
 
-                $data = Booking::whereBetween('date_start', [$date_start, $date_end])
-                    ->where('status', '!=', 'cancelled')
-                    ->with([
-                        'booking_selected.room',
-                    ])
-                    ->get()
-                    ->map(function ($booking) {
-                        return [
-                            'id' => $booking->id,
-                            'room_id' => $booking->booking_selected->first()?->room->id,
-                            'room' => $booking->booking_selected->first()?->room->name,
-                            'description' => $booking->booking_selected->first()?->room->description
-                        ];
-                    })
-                    ->groupBy('room_id')
-                    ->map(function ($bookings) {
-                        $booking = $bookings->first();
-
-                        return [
-                            'id' => $booking['id'],
-                            'room' => $booking['room'],
-                            'description' => $booking['description'],
-                            'total' => $bookings->count()
-                        ];
-                    })
-                    ->values();
-
-                    return response()->json($data);
+                            return [
+                                'id' => $roster->id,
+                                'date' => $roster->date,
+                                'name' => $roster->user->name,
+                                'specialty' => $roster->user->specialty,
+                                'icon' => $roster->roster_shift_id? $roster->shift->icon : $roster->leave->icon,
+                                'shift' => $roster->roster_shift_id? substr($roster->shift->time_start, 0, 5) . ' - ' . substr($roster->shift->time_end, 0, 5) : $roster->leave->description
+                            ];
+                        })
+                        ->sortBy([
+                            ['date', 'asc'],
+                            ['name', 'asc']
+                        ])
+                        ->values()
+                );
             }
-            // d) Therapist
-            else if ($switch == 'therapist') {
-
-                $data = Booking::whereBetween('date_start', [$date_start, $date_end])
-                    ->where('status', '!=', 'cancelled')
-                    ->with([
-                        'booking_selected.user',
-                    ])
-                    ->get()
-                    ->map(function ($booking) {
-                        return [
-                            'id' => $booking->id,
-                            'user_id' => $booking->booking_selected->first()?->user->id,
-                            'name' => $booking->booking_selected->first()?->user->name,
-                            'specialty' => $booking->booking_selected->first()?->user->specialty
-                        ];
-                    })
-                    ->groupBy('user_id')
-                    ->map(function ($bookings) {
-                        $booking = $bookings->first();
-
-                        return [
-                            'id' => $booking['id'],
-                            'name' => $booking['name'],
-                            'specialty' => $booking['specialty'],
-                            'total' => $bookings->count()
-                        ];
-                    })
-                    ->values();
-
-                    return response()->json($data);
-            }
-            // e) Revenue (RM)
-            else if ($switch == 'revenue') {
-
-                $bookings = Booking::whereBetween('date_start', [$date_start, $date_end])
-                            ->where('status', '!=', 'cancelled')
-                            ->get()
-                            ->groupBy(function ($booking) {
-                                return Carbon::parse($booking->date_start)->format('Y-m-d');
-                            });
-
-                $data = collect(CarbonPeriod::create($date_start, $date_end))
-                            ->map(function ($date, $index) use ($bookings) {
-
-                                $date = $date->format('Y-m-d');
-
-                                $dailyBookings = $bookings->get($date, collect());
-
-                                return [
-                                    'id' => $index+1,
-                                    'date' => $date,
-                                    'price' => $dailyBookings->sum('price_final'),
-                                ];
-                            })
-                            ->values();
-
-                return response()->json($data);
-            }
-            
 
         } catch (\Exception $e) {
             return response()->json([
