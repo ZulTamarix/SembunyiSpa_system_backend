@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 // cronJob
 use Illuminate\Support\Facades\Schedule;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Schedule;
 use App\Models\Banner;
 use App\Models\Voucher\Voucher;
 use App\Models\Voucher\Voucher_customer;
-
+use App\Models\User;
 use App\Models\Booking\Booking;
 use App\Models\Notification;
 
@@ -17,32 +18,45 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+#region 1) -> Expired by date
 
-// 1) Banner
-Schedule::call(function () {
-    Banner::whereDate('date_expired', '<', today())
-        ->update([
-            'status' => 'inactive'
-        ]);
-})->dailyAt('00:00');
-// 2) Voucher
-Schedule::call(function () {
-    Voucher::whereDate('date_expired', '<', today())
-        ->update([
-            'status' => 'inactive'
-        ]);
-})->dailyAt('00:00');
-// 3) Voucher_customer
-Schedule::call(function () {
-    Voucher_customer::whereDate('date_expired', '<', today())
-        ->update([
-            'status' => 'inactive'
-        ]);
-})->dailyAt('00:00');
+    // a) Banner
+    Schedule::call(function () {
+        Banner::whereDate('date_expired', '<', today())
+            ->update([
+                'status' => 'inactive'
+            ]);
+    })->dailyAt('00:00');
+    // b) Voucher
+    Schedule::call(function () {
+        Voucher::whereDate('date_expired', '<', today())
+            ->update([
+                'status' => 'inactive'
+            ]);
+    })->dailyAt('00:00');
+    // c) Voucher_customer
+    Schedule::call(function () {
+        Voucher_customer::whereDate('date_expired', '<', today())
+            ->update([
+                'status' => 'inactive'
+            ]);
+    })->dailyAt('00:00');
+    // d) Membership
+    Schedule::call(function () {
+        User::whereDate('membership_date_expired', '<', today())
+            ->update([
+                'membership_id' => null,
+                'membership_date_expired' => null,
+                'code' => DB::raw("REGEXP_REPLACE(code, '[A-Za-z]', '')"),
+            ]);
+    })->dailyAt('09:30');
 
-#region -> Treatment purpose
+#endregion
 
-    // 1) reminder for therapist '30 minute' before treatment
+
+#region 2) -> Treatment purpose
+
+    // a) reminder for therapist '30 minute' before treatment
     Schedule::call(function () {
 
         $reminderTime = now()->addMinutes(30);
@@ -82,4 +96,5 @@ Schedule::call(function () {
         }
 
     })->everyMinute();
+
 #endregion

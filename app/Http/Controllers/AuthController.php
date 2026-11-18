@@ -53,9 +53,8 @@ class AuthController
                 $token = $user->createToken('admin-login')->plainTextToken;
 
                 // 2. Create user's token based on their device\
-                $user_token = [];
+                $user_token = null;
                 if (!$switch) {
-
                     $user_token = User_token::updateOrCreate(
                         [
                             'user_id' => $user->id,
@@ -72,7 +71,7 @@ class AuthController
                     'message' => 'Login successful',
                     'token' => $token,
                     'user' => $user,
-                    'token_device' => $user_token->token
+                    'token_device' => $user_token?->token
                 ]);
             });
 

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 use App\Models\User;
+use App\Models\User_token;
 use App\Models\Banner;
 use App\Models\Room;
 use App\Models\Membership;
@@ -79,6 +81,8 @@ class MobileController
                             'type' =>  $voucher_customer->voucher->type,
                             'code' =>  $voucher_customer->voucher->code,
                             'description' => $voucher_customer->voucher->description,
+                            'voucher_type' => $voucher_customer->voucher->discount_type,
+                            'voucher_value' => $voucher_customer->voucher->discount_value,
                             'log' => $voucher_customer->log->map(function ($log) {
                                 return [
                                     // 'id' => $log->id,
@@ -555,15 +559,24 @@ class MobileController
                     'role' => 'customer',
                 ]);
 
+                $user_token = User_token::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                    ],
+                    [
+                        'token' => $request->token,
+                    ]
+                );
+
+                // search for user full data
+                $user = User::find($user->id);
+
+
                 return response()->json([
                     'status' => true,
                     'message' => 'User created successfully',
-                    'data' => $user->only(
-                        'name',
-                        'email',
-                        'phoneNo',
-                        'date_birthday'
-                    ),
+                    'data' => $user,
+                    'token_device' => $user_token?->token
                 ], 201);
 
             } catch (\Throwable $e) {
@@ -573,6 +586,7 @@ class MobileController
                 ], 500);
             }
         }
+        
     #endregion
 
 
@@ -609,6 +623,49 @@ class MobileController
                         'phoneNo',
                         'date_birthday'
                     ),
+                ], 200);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+        }
+        
+        public function cancelBooking(string $id)
+        {
+            try {
+                $booking = Booking::findOrFail($id);
+
+                // Check whether booking starts within 24 hours
+                $bookingDateTime = Carbon::parse(
+                    $booking->date_start . ' ' . $booking->time_start
+                );
+
+                if ($bookingDateTime->diffInHours(now(), false) > -24) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Booking cannot be cancelled within 24 hours of its start time.',
+                    ], 400);
+                }
+
+                DB::transaction(function () use ($booking, $id) {
+
+                    $booking->update([
+                        'status' => 'cancelled'
+                    ]);
+
+                    Log_booking::create([
+                        'booking_id' => $id,
+                        'action' => 'Cancel booking',
+                    ]);
+                });
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Booking cancelled successfully',
+                    'data' => $booking->only('status'),
                 ], 200);
 
             } catch (\Exception $e) {
@@ -676,7 +733,7 @@ class MobileController
                     return response()->json([
                         'status' => false,
                         'message' => 'User not found.'
-                    ], 404);
+                    ], 200);
                 }
 
                 // 2. Check password
@@ -684,7 +741,7 @@ class MobileController
                     return response()->json([
                         'status' => false,
                         'message' => 'Incorrect password.'
-                    ], 401);
+                    ], 200);
                 }
 
                 // 3. Delete user
@@ -904,5 +961,13 @@ class MobileController
         }  
 
     // #endregion
-  
+    public function test()
+    {
+            User::whereDate('membership_date_expired', '<', today())
+            ->update([
+                'membership_id' => null,
+                'membership_date_expired' => null,
+                'code' => DB::raw("REGEXP_REPLACE(code, '[A-Za-z]', '')"),
+            ]);
+    }
 }

@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\NotificationController as ApiNotificationController
             Route::get('/mobile/notification/{user_id}', [MobileController::class, 'getNotification']); // get  notification for customer
             
             Route::post('/mobile/booking', [MobileController::class, 'createBooking']); // create booking for customer
+            Route::put('/mobile/booking/{id}', [MobileController::class, 'cancelBooking']); // create booking for customer
             Route::put('/mobile/customer/{id}', [MobileController::class, 'updateUser']); // create user for customer
             Route::post('/mobile/customer/delete/{id}', [MobileController::class, 'deleteUser_withID']); // create user for customer
 
@@ -72,5 +73,7 @@ use App\Http\Controllers\Api\NotificationController as ApiNotificationController
         #region -> 'notification'
             // Route::post('/notification/send', [ApiNotificationController::class, 'sendToUser']);
         #endregion
-        
+
+
+            Route::get('/mobile/test', [MobileController::class, 'test']); // get total booking for therapist
     });
