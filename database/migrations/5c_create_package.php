@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('poster');
             $table->string('title');
-            $table->string('description');
-            $table->longText('duration');
+            $table->longText('description');
+            $table->integer('duration');
             $table->decimal('price', 10, 2);
             $table->string('gender');
             $table->longText('detail');

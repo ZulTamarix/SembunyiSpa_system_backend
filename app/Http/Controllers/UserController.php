@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
@@ -113,10 +115,10 @@ class UserController
         // check if it exist
         $user = User::findOrFail($id);
         $switch = $request->input('switch');
+        $code_old = $request->input('code');
 
         // 1)
         if ($switch == 'membership') {
-
             $validated = $request->validate([
                 'membership_id' => 'required|integer',
                 'membership_date_expired' => 'nullable|string',
@@ -125,11 +127,24 @@ class UserController
             // Get membership
             $membership = Membership::findOrFail($validated['membership_id']);
 
-            // Count users that already have this membership
-            $total = User::where('membership_id', $membership->id)->count();
+            // a) if code != null
+            if ($code_old) {
+                $code = $membership->serial_code . ($code_old);
+            }
+            // b) if code == null
+            else {
+                // Count user based on total membership
+                $total = User::whereNotNull('membership_id')->count();
 
-            // Generate code
-            $code = $membership->serial_code . ($total + 1);
+                // Count users that have code and role customer or walkin
+                $total = User::whereIn('role', ['customer', 'walkin'])
+                    ->whereNotNull('code')
+                    ->count();
+
+                // Generate code
+                $code = $membership->serial_code . ($total + 1);
+            }
+
             DB::transaction(function () use ($validated, $user, $code) {
 
                 // 1. Update user
@@ -151,6 +166,7 @@ class UserController
                         'user_id' => $user->id,
                         'quantity' => $voucher->quantity,
                         'date_expired' => $validated['membership_date_expired'],
+                        'serial_no' => strtoupper(Str::random(8)),
                         'status' => $voucher->status,
                     ]);
                 }

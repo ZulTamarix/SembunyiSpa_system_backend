@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 use App\Models\Voucher\Voucher;
 use App\Models\Voucher\Voucher_customer;
 use App\Models\Log\Log_voucher;
@@ -92,7 +94,7 @@ class VoucherController
                             'voucher_id' => $voucher->id,
                             'user_id' => $customer->id,
                             'quantity' => $validated['quantity'],
-                            'serial_no' => $validated['serial_no'],
+                            'serial_no' => strtoupper(Str::random(8)),
                             'status' => $validated['status'],
                         ]);
                     }
@@ -107,7 +109,7 @@ class VoucherController
                         'voucher_id' => $voucher->id,
                         'user_id' => $validated['selected_customer'],
                         'quantity' => $validated['quantity'],
-                        'serial_no' => $validated['serial_no'],
+                        'serial_no' => strtoupper(Str::random(8)),
                         'status' => $validated['status'],
                     ]);
                 }
@@ -131,7 +133,7 @@ class VoucherController
                 'user_id' => $validated['user_id'],
                 'quantity' => $validated['quantity'],
                 'date_expired' => $validated['date_expired'],
-                'serial_no' => $validated['serial_no'],
+                'serial_no' => strtoupper(Str::random(8)),
                 'status' => $validated['status'],
             ]);
         }
@@ -176,24 +178,29 @@ class VoucherController
                 'quantity' => $validated['quantity'],
             ]);
         }
-        // 2) set quantity == 0
+        // 2) decrement quantity by 1
         else if($switch == 'customer') {
-            if($extra == 'quantity') {
+            if ($extra == 'quantity') {
 
                 // if 1 fail, all fail
                 DB::transaction(function () use ($id) {
-                    // check if it exist
+
+                    // Check if it exists
                     $voucher_customer = Voucher_customer::findOrFail($id);
 
-                    // 1. Update voucher_customer
-                    $voucher_customer->update([
-                        'status' => 'redeemed',
-                        'quantity' => 0,
-                    ]);
+                    // 1. Decrement quantity by 1
+                    $voucher_customer->decrement('quantity');
 
-                    // 2. Add log
+                    // 2. Update status if quantity reaches 0
+                    if ($voucher_customer->fresh()->quantity == 0) {
+                        $voucher_customer->update([
+                            'status' => 'redeemed',
+                        ]);
+                    }
+
+                    // 3. Add log
                     Log_voucher::create([
-                        'voucher_customer_id' =>  $id,
+                        'voucher_customer_id' => $id,
                         'action' => "Redeem the voucher"
                     ]);
                 });

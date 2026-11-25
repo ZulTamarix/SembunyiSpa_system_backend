@@ -2,7 +2,6 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 
 // cronJob
 use Illuminate\Support\Facades\Schedule;
@@ -31,25 +30,29 @@ Artisan::command('inspire', function () {
     Schedule::call(function () {
         Voucher::whereDate('date_expired', '<', today())
             ->update([
-                'status' => 'inactive'
+                'status' => 'expired'
             ]);
     })->dailyAt('00:00');
     // c) Voucher_customer
     Schedule::call(function () {
         Voucher_customer::whereDate('date_expired', '<', today())
             ->update([
-                'status' => 'inactive'
+                'status' => 'expired'
             ]);
     })->dailyAt('00:00');
     // d) Membership
     Schedule::call(function () {
-        User::whereDate('membership_date_expired', '<', today())
-            ->update([
-                'membership_id' => null,
-                'membership_date_expired' => null,
-                'code' => DB::raw("REGEXP_REPLACE(code, '[A-Za-z]', '')"),
-            ]);
-    })->dailyAt('09:30');
+        $users = User::whereDate('membership_date_expired', '<', today())
+            ->get();
+
+        foreach ($users as $user) {
+            $user->membership_id = null;
+            $user->membership_date_expired = null;
+            $user->code = preg_replace('/[A-Za-z]/', '', $user->code);
+            $user->save();
+        }
+
+    })->dailyAt('00:00');
 
 #endregion
 

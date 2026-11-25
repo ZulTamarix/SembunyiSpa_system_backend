@@ -59,7 +59,7 @@ class MobileController
                 return response()->json([
                     'status' => false,
                     'message' => $e->getMessage()
-                ], 500);
+                ], 400);
             }
         }
 
@@ -230,26 +230,44 @@ class MobileController
                     'package_service.service.package_room'
                 )->find($treatment_id);
 
+                // Log::info($package->toJson(JSON_PRETTY_PRINT));
+
                 // a) therapist
-                $therapist_list = $package->package_service->isNotEmpty()
-                    ? $package->package_service
-                        ->flatMap(fn($item) => $item->service?->package_therapist ?? [])
+                // $therapist_list = $package->package_service->isNotEmpty()
+                //     ? $package->package_service
+                //         ->flatMap(fn($item) => $item->service?->package_therapist ?? [])
+                //         ->pluck('user_id')
+                //         ->unique()
+                //         ->values()
+                //         ->toArray()
+                //     : ($package->package_therapist?->pluck('user_id')->toArray() ?? []);
+                $therapist_list = $package->package_service
+                    ->flatMap(fn($item) => $item->service?->package_therapist ?? [])
+                    ->pluck('user_id')
+                    ->unique()
+                    ->values()
+                    ->toArray();
+
+                if (empty($therapist_list)) {
+                    $therapist_list = $package->package_therapist
                         ->pluck('user_id')
-                        ->unique()
-                        ->values()
-                        ->toArray()
-                    : ($package->package_therapist?->pluck('user_id')->toArray() ?? []);
+                        ->toArray();
+                }
 
                 // b) room
-                $room_list = $package->package_service->isNotEmpty()
-                    ? $package->package_service
-                        ->flatMap(fn($item) => $item->service?->package_room ?? [])
+                $room_list = $package->package_service
+                    ->flatMap(fn($item) => $item->service?->package_room ?? [])
+                    ->pluck('room_id')
+                    ->unique()
+                    ->values()
+                    ->toArray();
+
+                if (empty($room_list)) {
+                    $room_list = $package->package_room
                         ->pluck('room_id')
-                        ->unique()
-                        ->values()
-                        ->toArray()
-                    : ($package->package_room?->pluck('room_id')->toArray() ?? []);
-                    
+                        ->toArray();
+                }    
+                
                 $available_therapist = Roster::with([
                         'shift',
                         'booking_selected.booking'
@@ -277,6 +295,10 @@ class MobileController
                             ->where('time_end', '>', $time_start);
                     })
                     ->get();
+
+               
+                // Log::info($therapist_list);
+                // Log::info($room_list);
 
                 if ($available_therapist->count() > 0 && $available_room->count() > 0) {
                     return response()->json([
@@ -342,6 +364,7 @@ class MobileController
                 $data = $query->where('user_id', $user_id)->get()->map(function ($booking) {
                     return [
                         ...$booking->only(
+                            'id',
                             'date_start',
                             'time_start',
                             'time_end',
@@ -441,7 +464,7 @@ class MobileController
                 
                 // e) create
                     // if 1 fail, all fail
-                    DB::transaction(function () use (
+                    $data = DB::transaction(function () use (
                         $validated,
                         $package_id,
                         $title,
@@ -522,11 +545,21 @@ class MobileController
                             'title'       => 'Treatment Requested',
                             'description' => 'Your treatment request has been sent successfully.',
                         ]);
+
+                        $data = array_merge(
+                            $booking->toArray(),
+                            [
+                                'title' => $title
+                            ]
+                        );
+                        return $data;
+
                     });
 
                 return response()->json([
                     'status' => true,
-                    'message' => 'Booking created successfully'
+                    'message' => 'Booking created successfully',
+                    'data' => $data
                 ]);
 
             } catch (\Exception $e) {
@@ -541,24 +574,52 @@ class MobileController
         public function createUser(Request $request)
         {
             try {
-                $validated = $request->validate([
-                    'name'  => 'required|string',
-                    'email'  => 'required|string',
-                    'phoneNo'  => 'required|string',
-                    'password'  => 'nullable|string',
-                    'date_birthday' => 'nullable|string',
-                ]);
 
-                $user = User::create([
-                    'name' => $validated['name'],
-                    'email' => $validated['email'],
-                    'phoneNo' => $validated['phoneNo'],
-                    'password' => Hash::make($validated['password']),
-                    'date_birthday' => $validated['date_birthday'],
-                    'status' => 'active',
-                    'role' => 'customer',
-                ]);
+                // a. Register
+                    $validated = $request->validate([
+                        'name'  => 'required|string',
+                        'email'  => 'required|string',
+                        'phoneNo'  => 'required|string',
+                        'password'  => 'nullable|string',
+                        'date_birthday' => 'nullable|string',
+                    ]);
 
+                    $user = User::create([
+                        'name' => $validated['name'],
+                        'email' => $validated['email'],
+                        'phoneNo' => $validated['phoneNo'],
+                        'password' => Hash::make($validated['password']),
+                        'date_birthday' => $validated['date_birthday'],
+                        'status' => 'active',
+                        'role' => 'customer',
+                    ]);
+
+                    $user_token = User_token::updateOrCreate(
+                        [
+                            'user_id' => $user->id,
+                        ],
+                        [
+                            'token' => $request->token,
+                        ]
+                    );
+
+                    // search for user full data
+                    $user = User::find($user->id);
+
+                // b. Login
+                $user = User::where('email', $request->email)
+                            ->when(fn ($query) => $query->where('role', '!=', 'admin'))
+                            ->first();
+
+                // if (!$user || !Hash::check($request->password, $user->password)) {
+                //     return response()->json([
+                //         'status' => false,
+                //         'message' => 'Invalid email or password'
+                //     ], 401);
+                // }
+
+                $token = $user->createToken('admin-login')->plainTextToken;
+                $user_token = null;
                 $user_token = User_token::updateOrCreate(
                     [
                         'user_id' => $user->id,
@@ -568,13 +629,12 @@ class MobileController
                     ]
                 );
 
-                // search for user full data
-                $user = User::find($user->id);
-
-
                 return response()->json([
                     'status' => true,
                     'message' => 'User created successfully',
+                    // 'data' => $user,
+                    // 'token_device' => $user_token?->token
+                    'token' => $token,
                     'data' => $user,
                     'token_device' => $user_token?->token
                 ], 201);
@@ -583,7 +643,7 @@ class MobileController
                 return response()->json([
                     'status' => false,
                     'message' => $e->getMessage(),
-                ], 500);
+                ], 200);
             }
         }
         
@@ -665,7 +725,7 @@ class MobileController
                 return response()->json([
                     'status' => true,
                     'message' => 'Booking cancelled successfully',
-                    'data' => $booking->only('status'),
+                    'data' => $booking,
                 ], 200);
 
             } catch (\Exception $e) {
@@ -963,11 +1023,5 @@ class MobileController
     // #endregion
     public function test()
     {
-            User::whereDate('membership_date_expired', '<', today())
-            ->update([
-                'membership_id' => null,
-                'membership_date_expired' => null,
-                'code' => DB::raw("REGEXP_REPLACE(code, '[A-Za-z]', '')"),
-            ]);
     }
 }
